@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<h3 class="mb-4 fw-bold">Ofertas Destacadas</h3>
+
+<div class="d-flex justify-content-end mb-3">
+<form method="GET">
+
+<select name="orden" class="form-select w-auto" onchange="this.form.submit()">
+
+<option value="">Ordenar por</option>
+<option value="precio_asc">Precio: menor a mayor</option>
+<option value="precio_desc">Precio: mayor a menor</option>
+<option value="descuento">Mayor descuento</option>
+
+</select>
+
+</form>
+</div>
+
+<div class="row g-4">
+
+{% for oferta in page_obj %}
+<div class="col-md-3">
+<div class="card offer-card shadow position-relative">
+
+<span class="discount-badge">
+-{{ oferta.porcentaje_descuento }}%
+</span>
+
+{% if oferta.imagen %}
+<img src="{{ oferta.imagen.url }}"
+     class="card-img-top"
+     style="height:250px; object-fit:cover;">
+{% endif %}
+
+<div class="card-body">
+<h6>{{ oferta.titulo }}</h6>
+<p class="old-price">$ {{ oferta.precio_original }}</p>
+<h5 class="text-success">$ {{ oferta.precio_descuento }}</h5>
+
+<a href="{% url 'detalle_oferta' oferta.id %}" class="btn btn-primary w-100">
+Ver detalle
+</a>
+
+</div>
+</div>
+</div>
+{% endfor %}
+
+
+</div>
+
+<nav class="mt-4">
+<ul class="pagination justify-content-center">
+
+{% if page_obj.has_previous %}
+<li class="page-item">
+<a class="page-link" href="?page=1">Primera</a>
+</li>
+<li class="page-item">
+<a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+</li>
+{% endif %}
+
+<li class="page-item active">
+<span class="page-link">
+Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+</span>
+</li>
+
+{% if page_obj.has_next %}
+<li class="page-item">
+<a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+</li>
+<li class="page-item">
+<a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+</li>
+{% endif %}
+
+</ul>
+</nav>
+
+{% endblock %}

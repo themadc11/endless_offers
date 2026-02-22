@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3 class="mb-4 fw-bold">Dashboard del Proveedor</h3>
+
+<div class="row g-4">
+
+<div class="col-md-4">
+<div class="card text-center shadow-sm">
+<div class="card-body">
+<h5>Total Ofertas</h5>
+<h2>{{ total_ofertas }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card text-center shadow-sm">
+<div class="card-body">
+<h5>Activas</h5>
+<h2 class="text-success">{{ activas }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card text-center shadow-sm">
+<div class="card-body">
+<h5>Pendientes</h5>
+<h2 class="text-warning">{{ pendientes }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card text-center shadow-sm">
+<div class="card-body">
+<h5>Rechazadas</h5>
+<h2 class="text-danger">{{ rechazadas }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card text-center shadow-sm">
+<div class="card-body">
+<h5>Total Favoritos</h5>
+<h2>❤️ {{ total_favoritos }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card text-center shadow-sm">
+<div class="card-body">
+<h5>Total Comentarios</h5>
+<h2>💬 {{ total_comentarios }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-12">
+<div class="card text-center shadow-sm">
+<div class="card-body">
+<h5>Promedio General</h5>
+
+{% if promedio_general %}
+<h2>⭐ {{ promedio_general|floatformat:1 }}</h2>
+{% else %}
+<p class="text-muted">Sin calificaciones aún.</p>
+{% endif %}
+
+</div>
+</div>
+</div>
+
+</div>
+
+{% endblock %}

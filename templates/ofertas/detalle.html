@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>{{ oferta.titulo }}</h2>
+
+{% if oferta.imagen %}
+<img src="{{ oferta.imagen.url }}" alt="{{ oferta.titulo }}" width="300">
+{% endif %}
+
+<p>{{ oferta.descripcion }}</p>
+
+<p>
+    <del>${{ oferta.precio_original }}</del>
+    <strong>${{ oferta.precio_descuento }}</strong>
+</p>
+
+<p>
+    Descuento: {{ oferta.porcentaje_descuento|floatformat:0 }}%
+</p>
+
+<hr class="my-5">
+
+<hr class="my-4">
+
+<h4>Calificación</h4>
+
+{% if promedio %}
+<p>
+    <strong>{{ promedio|floatformat:1 }}</strong> ⭐
+    ({{ total_calificaciones }} votos)
+</p>
+{% else %}
+<p class="text-muted">Sin calificaciones aún.</p>
+{% endif %}
+
+{% if user.is_authenticated %}
+<form method="post" class="mb-3">
+    {% csrf_token %}
+    {{ form_calificacion.puntuacion }}
+    <button type="submit" name="calificacion" class="btn btn-warning mt-2">
+        Guardar calificación
+    </button>
+</form>
+{% else %}
+<p class="text-muted">Inicia sesión para calificar.</p>
+{% endif %}
+
+<h4 class="mb-4">Comentarios</h4>
+
+{% if user.is_authenticated %}
+<form method="post" class="mb-4">
+    {% csrf_token %}
+    {{ form.contenido }}
+    <button type="submit" name="comentario" class="btn btn-success mt-2">
+        Publicar comentario
+    </button>
+</form>
+{% else %}
+<p class="text-muted">
+    Debes iniciar sesión para comentar.
+</p>
+{% endif %}
+
+{% for comentario in comentarios %}
+<div class="card mb-3">
+    <div class="card-body">
+        <strong>{{ comentario.usuario.username }}</strong>
+        <small class="text-muted">
+            - {{ comentario.fecha_creacion|date:"d/m/Y H:i" }}
+        </small>
+        <p class="mt-2 mb-0">
+            {{ comentario.contenido }}
+        </p>
+    </div>
+</div>
+{% empty %}
+<p class="text-muted">No hay comentarios todavía.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+{% if es_favorito %}
+<a href="{% url 'toggle_favorito' oferta.id %}" class="btn btn-danger">
+    Quitar de favoritos
+</a>
+{% else %}
+<a href="{% url 'toggle_favorito' oferta.id %}" class="btn btn-outline-danger">
+    Agregar a favoritos
+</a>
+{% endif %}
+{% endif %}
+
+<br><br>
+
+{% if oferta.enlace_externo %}
+<a href="{{ oferta.enlace_externo }}" target="_blank" rel="noopener noreferrer">
+    Ir al sitio del proveedor
+</a>
+{% endif %}
+
+<br><br>
+
+<a href="{% url 'lista_ofertas' %}">
+    ← Volver a ofertas
+</a>
+
+{% endblock %}

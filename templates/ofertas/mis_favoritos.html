@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Mis Favoritos</h2>
+
+{% for fav in favoritos %}
+    <div>
+        <h4>{{ fav.oferta.titulo }}</h4>
+        <p>
+            <del>${{ fav.oferta.precio_original }}</del>
+            <strong>${{ fav.oferta.precio_descuento }}</strong>
+        </p>
+        <a href="{% url 'detalle_oferta' fav.oferta.id %}">Ver detalle</a>
+    </div>
+    <hr>
+{% empty %}
+    <p>No tienes favoritos aún.</p>
+{% endfor %}
+
+{% endblock %}
