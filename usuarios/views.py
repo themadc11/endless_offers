@@ -4,7 +4,8 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import RegistroForm
 from django.contrib import messages
-
+from .models import SolicitudProveedor
+from .forms import PerfilForm
 
 def registro(request):
     if request.method == "POST":
@@ -39,16 +40,47 @@ def registro(request):
     return render(request, "usuarios/registro.html", {"form": form})
 
 
+
 @login_required
 def solicitar_proveedor(request):
-    perfil = request.user.perfil
 
-    if perfil.rol == "proveedor":
-        messages.warning(request, "Ya eres proveedor.")
+    # Verificar si ya tiene solicitud pendiente
+    existe = SolicitudProveedor.objects.filter(
+        usuario=request.user,
+        estado='pendiente'
+    ).exists()
+
+    if existe:
+        messages.warning(request, "Ya tienes una solicitud pendiente.")
         return redirect("perfil")
 
-    perfil.solicitud_proveedor = True
-    perfil.save()
+    SolicitudProveedor.objects.create(
+        usuario=request.user
+    )
 
-    messages.success(request, "Tu solicitud para ser proveedor fue enviada al administrador.")
+    messages.success(request, "Solicitud enviada correctamente.")
     return redirect("perfil")
+
+@login_required
+def perfil(request):
+    perfil = request.user.perfil
+
+    return render(request, "usuarios/perfil.html", {
+        "perfil": perfil
+    })
+
+@login_required
+def editar_perfil(request):
+
+    perfil = request.user.perfil
+
+    if request.method == 'POST':
+        form = PerfilForm(request.POST, request.FILES, instance=perfil)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Perfil actualizado correctamente.")
+            return redirect("perfil")
+    else:
+        form = PerfilForm(instance=perfil)
+
+    return render(request, 'usuarios/editar_perfil.html', {'form': form})
