@@ -1,22 +1,84 @@
-<h2>Mi Perfil</h2>
+<h2 class="mb-4">Mi Perfil</h2>
+
+<div class="card shadow-sm p-4">
+
+<div class="row">
+<div class="col-md-3 text-center">
 
 {% if perfil.foto %}
-    <img src="{{ perfil.foto.url }}" width="120">
+<img src="{{ perfil.foto.url }}" class="img-fluid rounded-circle mb-3" width="150">
+{% else %}
+<i class="bi bi-person-circle" style="font-size:120px;"></i>
 {% endif %}
 
-<p><strong>Usuario:</strong> {{ request.user.username }}</p>
-<p><strong>Email:</strong> {{ request.user.email }}</p>
-<p><strong>Teléfono:</strong> {{ perfil.telefono }}</p>
-<p><strong>Dirección:</strong> {{ perfil.direccion }}</p>
-<p><strong>Rol:</strong> {{ perfil.rol }}</p>
-<p><strong>Descripción:</strong> {{ perfil.descripcion }}</p>
+<h5>{{ request.user.username }}</h5>
 
-<a href="{% url 'editar_perfil' %}">Editar perfil</a>
+{% if perfil.rol == "proveedor" %}
+<span class="badge bg-success">Proveedor verificado</span>
+{% else %}
+<span class="badge bg-secondary">Consumidor</span>
+{% endif %}
+
+</div>
+
+<div class="col-md-9">
+
+<p><strong>Email:</strong> {{ request.user.email }}</p>
+<p><strong>Teléfono:</strong> {{ perfil.telefono|default:"No especificado" }}</p>
+<p><strong>Dirección:</strong> {{ perfil.direccion|default:"No especificada" }}</p>
+<p><strong>Descripción:</strong> {{ perfil.descripcion|default:"Sin descripción" }}</p>
+
+<a href="{% url 'editar_perfil' %}" class="btn btn-primary mt-3">
+Editar perfil
+</a>
+
+</div>
+</div>
 
 <hr>
 
+<!-- SECCIÓN SOLICITUD PROVEEDOR -->
+
 {% if perfil.rol == "consumidor" %}
-    <a href="{% url 'solicitar_proveedor' %}">
-        Solicitar ser proveedor
+
+<h5 class="mt-4">Estado de proveedor</h5>
+
+{% if solicitud %}
+
+    {% if solicitud.estado == "pendiente" %}
+        <div class="alert alert-warning mt-3">
+        Tu solicitud está <strong>pendiente de aprobación</strong>.
+        Te notificaremos cuando sea revisada.
+        </div>
+
+    {% elif solicitud.estado == "aprobada" %}
+        <div class="alert alert-success mt-3">
+        Tu solicitud fue aprobada 🎉 Ahora eres proveedor.
+        </div>
+
+    {% elif solicitud.estado == "rechazada" %}
+        <div class="alert alert-danger mt-3">
+        Tu solicitud fue rechazada.
+        Puedes volver a intentarlo.
+        </div>
+
+        <a href="{% url 'solicitar_proveedor' %}" class="btn btn-warning">
+        Volver a solicitar
+        </a>
+    {% endif %}
+
+{% else %}
+
+    <div class="alert alert-info mt-3">
+    ¿Quieres publicar tus propias ofertas?
+    </div>
+
+    <a href="{% url 'solicitar_proveedor' %}" class="btn btn-warning">
+    Solicitar ser proveedor
     </a>
+
 {% endif %}
+
+{% endif %}
+
+</div>
