@@ -1,215 +1,503 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block title %}Registro - EndlessOffers{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* Reutilizamos los mismos estilos del login */
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - EndlessOffers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        /* CASITA */
+        .home-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8C2B32;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 1px solid rgba(140, 43, 50, 0.1);
+        }
+        
+        .home-button:hover {
+            background: #8C2B32;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .container-custom {
+            width: 100%;
+            max-width: 1000px;  /* Reducido de 1100px */
+            height: 600px;       /* Reducido de 650px */
+            display: flex;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* Columna izquierda - IMAGEN */
+        .image-section {
+            flex: 1.2;
+            background: linear-gradient(135deg, rgba(140, 43, 50, 0.9) 0%, rgba(93, 92, 49, 0.9) 100%),
+                        url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            color: white;
+        }
+        
+        .image-content {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .image-content h1 {
+            font-size: 3rem;  /* Reducido de 3.5rem */
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .image-content p {
+            font-size: 1.1rem;  /* Reducido de 1.3rem */
+            opacity: 0.95;
+            max-width: 350px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+        
+        /* Columna derecha - FORMULARIO */
+        .form-section {
+            flex: 0.8;
+            background: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;  /* Reducido padding */
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 350px;  /* Reducido de 380px */
+        }
+        
+        /* SIN TÍTULO DE BIENVENIDA */
+        
+        /* GRID DE 2 COLUMNAS */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;  /* Reducido de 15px */
+            margin-bottom: 12px;  /* Reducido de 15px */
+        }
+        
+        .form-group {
+            margin-bottom: 12px;  /* Reducido de 15px */
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 4px;  /* Reducido de 5px */
+            color: #333;
+            font-size: 0.8rem;  /* Reducido de 0.85rem */
+            font-weight: 600;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 10px;  /* Reducido de 12px */
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8C2B32;
+            font-size: 0.95rem;  /* Reducido de 1rem */
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 10px 10px 35px;  /* Reducido padding */
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;  /* Reducido de 10px */
+            font-size: 0.85rem;  /* Reducido de 0.9rem */
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #8C2B32;
+            box-shadow: 0 0 0 3px rgba(140, 43, 50, 0.1);
+        }
+        
+        .helptext {
+            font-size: 0.65rem;  /* Reducido de 0.7rem */
+            color: #999;
+            margin-top: 3px;  /* Reducido de 4px */
+        }
+        
+        /* Tooltip de requisitos */
+        .password-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;  /* Reducido de 5px */
+        }
+        
+        .help-icon {
+            color: #8C2B32;
+            font-size: 1.1rem;  /* Reducido de 1.2rem */
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .help-icon:hover .tooltip-box {
+            display: block;
+        }
+        
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            top: 25px;  /* Reducido de 30px */
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;  /* Reducido de 10px */
+            padding: 10px;  /* Reducido de 12px */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 180px;  /* Reducido de 200px */
+            z-index: 100;
+        }
+        
+        .tooltip-box h4 {
+            font-size: 0.8rem;  /* Reducido de 0.85rem */
+            color: #5D5C31;
+            margin-bottom: 6px;  /* Reducido de 8px */
+            font-weight: 600;
+        }
+        
+        .tooltip-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .tooltip-box li {
+            font-size: 0.7rem;  /* Reducido de 0.75rem */
+            color: #555;
+            margin-bottom: 4px;  /* Reducido de 5px */
+            display: flex;
+            align-items: center;
+            gap: 4px;  /* Reducido de 5px */
+        }
+        
+        .terms-checkbox {
+            margin: 12px 0;  /* Reducido de 15px */
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;  /* Reducido de 8px */
+            cursor: pointer;
+            font-size: 0.8rem;  /* Reducido de 0.85rem */
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: 14px;  /* Reducido de 16px */
+            height: 14px;  /* Reducido de 16px */
+            accent-color: #8C2B32;
+        }
+        
+        .checkbox-text a {
+            color: #8C2B32;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .btn-register {
+            width: 100%;
+            padding: 12px;  /* Reducido de 14px */
+            background: #8C2B32;
+            border: none;
+            border-radius: 8px;  /* Reducido de 10px */
+            color: white;
+            font-size: 0.9rem;  /* Reducido de 1rem */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;  /* Reducido de 15px */
+        }
+        
+        .btn-register:hover {
+            background: #5D5C31;
+            transform: translateY(-2px);
+        }
+        
+        /* SEPARADOR */
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 12px 0;  /* Reducido de 15px */
+            color: #999;
+            font-size: 0.75rem;  /* Reducido de 0.8rem */
+        }
+        
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .separator span {
+            padding: 0 8px;  /* Reducido de 10px */
+        }
+        
+        /* BOTONES SOCIALES */
+        .social-buttons {
+            display: flex;
+            gap: 8px;  /* Reducido de 10px */
+            margin-bottom: 12px;  /* Reducido de 15px */
+        }
+        
+        .btn-social {
+            flex: 1;
+            padding: 10px;  /* Reducido de 12px */
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;  /* Reducido de 10px */
+            background: white;
+            color: #555;
+            font-size: 0.8rem;  /* Reducido de 0.9rem */
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;  /* Reducido de 8px */
+            text-decoration: none;
+        }
+        
+        .btn-social:hover {
+            background: #f8f8f8;
+            border-color: #8C2B32;
+        }
+        
+        .btn-gmail {
+            color: #DB4437;
+        }
+        
+        .btn-gmail i {
+            color: #DB4437;
+        }
+        
+        .btn-facebook {
+            color: #1877f2;
+        }
+        
+        .btn-facebook i {
+            color: #1877f2;
+        }
+        
+        .login-prompt {
+            text-align: center;
+            margin: 12px 0 8px;  /* Reducido */
+            font-size: 0.8rem;  /* Reducido de 0.9rem */
+        }
+        
+        .login-prompt a {
+            color: #8C2B32;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* TÉRMINOS Y COPYRIGHT */
+        .terms-link {
+            text-align: center;
+            margin-bottom: 5px;  /* Reducido de 8px */
+        }
+        
+        .terms-link a {
+            color: #5D5C31;
+            text-decoration: none;
+            font-size: 0.75rem;  /* Reducido de 0.8rem */
+        }
+        
+        .terms-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .copyright {
+            text-align: center;
+            color: #999;
+            font-size: 0.65rem;  /* Reducido de 0.7rem */
+        }
+        
+        /* Mensajes */
+        .messages {
+            margin-bottom: 12px;  /* Reducido de 15px */
+        }
+        
+        .alert {
+            padding: 8px 12px;  /* Reducido */
+            border-radius: 6px;  /* Reducido */
+            font-size: 0.8rem;  /* Reducido */
+            margin-bottom: 8px;  /* Reducido */
+        }
+    </style>
+</head>
+<body>
+    <!-- CASITA -->
+    <a href="/" class="home-button" title="Volver al inicio">
+        <i class="bi bi-house-door-fill"></i>
+    </a>
     
-    .register-container {
-        min-height: calc(100vh - 76px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
-    
-    .register-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        width: 100%;
-        max-width: 500px;
-        animation: slideUp 0.5s ease;
-    }
-    
-    .register-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        text-align: center;
-    }
-    
-    .register-header h1 {
-        color: white;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    
-    .register-header p {
-        color: rgba(255, 255, 255, 0.9);
-        margin: 0.5rem 0 0 0;
-        font-size: 1.1rem;
-    }
-    
-    .register-body {
-        padding: 2.5rem;
-    }
-    
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: #333;
-        font-weight: 500;
-    }
-    
-    .input-group {
-        position: relative;
-    }
-    
-    .input-group i {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #667eea;
-        z-index: 1;
-    }
-    
-    .form-control {
-        width: 100%;
-        padding: 12px 15px 12px 45px;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-control:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .btn-register {
-        width: 100%;
-        padding: 14px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 10px;
-        color: white;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .btn-register:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
-    
-    .login-link {
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #e0e0e0;
-    }
-    
-    .login-link p {
-        color: #666;
-        margin-bottom: 0;
-    }
-    
-    .login-link a {
-        color: #667eea;
-        font-weight: 600;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-    
-    .login-link a:hover {
-        color: #764ba2;
-        text-decoration: underline;
-    }
-    
-    .helptext {
-        display: block;
-        font-size: 0.85rem;
-        color: #666;
-        margin-top: 0.25rem;
-    }
-    
-    .errorlist {
-        list-style: none;
-        padding: 0;
-        margin: 0.5rem 0 0 0;
-        color: #dc3545;
-        font-size: 0.9rem;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="register-container">
-    <div class="register-card">
-        <div class="register-header">
-            <h1>EndlessOffers</h1>
-            <p>Únete a nuestra comunidad</p>
+    <div class="container-custom">
+        <!-- Columna izquierda - TÍTULO -->
+        <div class="image-section">
+            <div class="image-content">
+                <h1>¡Bienvenido!</h1>
+                <p>Crea tu cuenta en EndlessOffers</p>
+            </div>
         </div>
         
-        <div class="register-body">
-            <!-- Formulario de registro -->
-            <form method="post">
-                {% csrf_token %}
+        <!-- Columna derecha - FORMULARIO SIN TÍTULO -->
+        <div class="form-section">
+            <div class="form-container">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 
-                {% for field in form %}
-                    <div class="form-group">
-                        <label for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                        </label>
-                        <div class="input-group">
-                            {% if field.name == 'username' %}
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- FILA DE 2 COLUMNAS: Usuario y Email -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Usuario</label>
+                            <div class="input-group">
                                 <i class="bi bi-person-fill"></i>
-                            {% elif field.name == 'email' %}
-                                <i class="bi bi-envelope-fill"></i>
-                            {% elif 'password' in field.name %}
-                                <i class="bi bi-lock-fill"></i>
-                            {% else %}
-                                <i class="bi bi-pencil-fill"></i>
-                            {% endif %}
-                            {{ field }}
+                                <input type="text" name="username" class="form-control" placeholder="usuario123" required>
+                            </div>
+                            <div class="helptext">Máx. 150</div>
                         </div>
                         
-                        {% if field.help_text %}
-                            <small class="helptext">{{ field.help_text }}</small>
-                        {% endif %}
-                        
-                        {% if field.errors %}
-                            <ul class="errorlist">
-                                {% for error in field.errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <div class="input-group">
+                                <i class="bi bi-envelope-fill"></i>
+                                <input type="email" name="email" class="form-control" placeholder="tu@email.com" required>
+                            </div>
+                        </div>
                     </div>
-                {% endfor %}
+                    
+                    <!-- Contraseña con ícono de ayuda -->
+                    <div class="form-group">
+                        <div class="password-header">
+                            <label class="form-label">Contraseña</label>
+                            <div class="help-icon">
+                                <i class="bi bi-question-circle-fill"></i>
+                                <div class="tooltip-box">
+                                    <h4>La contraseña debe tener:</h4>
+                                    <ul>
+                                        <li><i class="bi bi-check-circle"></i> 8+ caracteres</li>
+                                        <li><i class="bi bi-check-circle"></i> 1+ número</li>
+                                        <li><i class="bi bi-check-circle"></i> 1+ letra</li>
+                                        <li><i class="bi bi-check-circle"></i> No común</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <i class="bi bi-lock-fill"></i>
+                            <input type="password" name="password1" class="form-control" placeholder="********" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmar contraseña -->
+                    <div class="form-group">
+                        <label class="form-label">Confirmar contraseña</label>
+                        <div class="input-group">
+                            <i class="bi bi-lock-fill"></i>
+                            <input type="password" name="password2" class="form-control" placeholder="********" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Términos -->
+                    <div class="terms-checkbox">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="accept_terms" required>
+                            <span class="checkbox-text">
+                                Acepto los <a href="{% url 'terminos' %}" target="_blank">términos y condiciones</a>
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn-register">Crear cuenta</button>
+                </form>
                 
-                <button type="submit" class="btn-register">
-                    Crear Cuenta
-                </button>
-            </form>
-            
-            <!-- Link de login -->
-            <div class="login-link">
-                <p>
-                    ¿Ya tienes una cuenta? 
-                    <a href="{% url 'login' %}">Inicia sesión aquí</a>
-                </p>
+                <!-- Separador y botones sociales -->
+                <div class="separator">
+                    <span>O continúa con</span>
+                </div>
+                
+                <div class="social-buttons">
+                    <a href="#" class="btn-social btn-gmail" onclick="alert('Demo: Google Login')">
+                        <i class="bi bi-google"></i> Gmail
+                    </a>
+                    <a href="#" class="btn-social btn-facebook" onclick="alert('Demo: Facebook Login')">
+                        <i class="bi bi-facebook"></i> Facebook
+                    </a>
+                </div>
+                
+                <div class="login-prompt">
+                    <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
+                </div>
+                
+                <!-- Términos y copyright -->
+                <div class="terms-link">
+                    <a href="{% url 'terminos' %}">Términos y condiciones</a>
+                </div>
+                <div class="copyright">
+                    © 2026 EndlessOffers
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

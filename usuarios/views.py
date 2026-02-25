@@ -1,40 +1,69 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from django.contrib.auth import login as auth_login  # Renombrado para evitar conflicto
-from django.contrib.auth import views as auth_views
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
+
 
 from .forms import RegistroForm, PerfilForm
-from .models import Perfil, SolicitudProveedor
+from .models import SolicitudProveedor
 
 # ==================== AUTENTICACIÓN ====================
 
-def login_view(request):  # Cambié el nombre de 'login' a 'login_view'
-    """Vista personalizada de inicio de sesión"""
+def login_view(request):
+    """Vista personalizada de inicio de sesión que acepta email o username"""
     if request.user.is_authenticated:
         return redirect('lista_ofertas')
     
-    return auth_views.LoginView.as_view(
-        template_name='usuarios/login.html',
-        redirect_authenticated_user=True
-    )(request)
+    if request.method == 'POST':
+        username_or_email = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # Verificar si es email o username
+        user = None
+        if '@' in username_or_email:
+            # Es un email - buscar usuario por email
+            try:
+                user_obj = User.objects.get(email=username_or_email)
+                user = authenticate(request, username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                user = None
+        else:
+            # Es username - autenticar directamente
+            user = authenticate(request, username=username_or_email, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'¡Bienvenido {user.username}!')
+            return redirect('lista_ofertas')
+        else:
+            messages.error(request, '❌ Usuario/Email o contraseña incorrectos')
+            return redirect('login')
+    
+    return render(request, 'usuarios/login.html')
 
 
 def registro(request):
-    """Registro de nuevo usuario"""
+    """Registro de nuevo usuario con login automático"""
     if request.user.is_authenticated:
         return redirect('lista_ofertas')
     
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            messages.success(request, '¡Registro exitoso! Ahora puedes iniciar sesión.')
-            return redirect('login')
+            user = form.save()  # Guarda el usuario
+            
+            # 👇 LOGIN AUTOMÁTICO
+            login(request, user)
+            
+            messages.success(request, f'¡Bienvenido {user.username}! Tu cuenta ha sido creada exitosamente.')
+            return redirect('lista_ofertas')  # Redirige al home
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
@@ -171,19 +200,41 @@ def ser_proveedor(request):
 
 # ==================== RECUPERACIÓN DE CONTRASEÑA ====================
 
-def password_reset_request(request):
-    """Solicitud de recuperación de contraseña"""
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        try:
-            user = User.objects.get(email=email)
-            # Aquí enviarías el email real en producción
-            messages.success(
-                request, 
-                f'📧 Se ha enviado un enlace de recuperación a {email} (modo desarrollo: revisa la consola)'
-            )
-            return redirect('login')
-        except User.DoesNotExist:
-            messages.error(request, '❌ No existe una cuenta con ese email.')
+# VERSIÓN CORREGIDA - Usando la clase de Django
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'usuarios/password_reset.html'
+    email_template_name = 'usuarios/password_reset_email.html'
+    subject_template_name = 'usuarios/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    html_email_template_name = 'usuarios/password_reset_email.html'  # 👈 ESTA LÍNEA ES CLAVE
     
-    return render(request, 'usuarios/password_reset.html')
+    def form_valid(self, form):
+        messages.success(self.request, '📧 Revisa tu correo. Te hemos enviado las instrucciones.')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        email = self.request.POST.get('email', '')
+        messages.error(self.request, f'❌ No encontramos una cuenta con el email: {email}')
+        return super().form_invalid(form)
+
+# Si quieres mantener tu función simple, así debe quedar:
+def password_reset_request(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            # Verificar si existe el email
+            if User.objects.filter(email=email).exists():
+                form.save(
+                    request=request,
+                    use_https=request.is_secure(),
+                    email_template_name='usuarios/password_reset_email.html'
+                )
+                messages.success(request, f'📧 Hemos enviado instrucciones a {email}')
+                return redirect('password_reset_done')
+            else:
+                messages.error(request, f'❌ No existe una cuenta con ese email')
+    else:
+        form = PasswordResetForm()
+    
+    return render(request, 'usuarios/password_reset.html', {'form': form})
