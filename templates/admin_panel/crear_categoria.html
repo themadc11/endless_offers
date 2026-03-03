@@ -1,0 +1,37 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_title %}Crear Categoría{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-0">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-plus-circle me-2" style="color: var(--primary);"></i>
+                    Nueva Categoría
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nombre de la categoría</label>
+                        <input type="text" name="nombre" class="form-control rounded-0" placeholder="Ej: Tecnología, Hogar, Moda..." required>
+                        <small class="text-muted">Este nombre será visible para los usuarios</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'admin_categorias' %}" class="btn btn-outline-dark rounded-0">Cancelar</a>
+                        <button type="submit" class="btn" style="background-color: var(--primary); color: white; border-radius: 0;">
+                            <i class="bi bi-check-circle me-2"></i> Crear categoría
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

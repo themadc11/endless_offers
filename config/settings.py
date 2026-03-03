@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 
     'usuarios.apps.UsuariosConfig',
     'ofertas',
+    'admin_panel',
+    'notificaciones',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +67,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ofertas.context_processors.favoritos_count',
+                'notificaciones.context_processors.notificaciones',
             ],
         },
     },
@@ -79,8 +82,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'endless_offers',        # Nombre de tu base de datos
+        'USER': 'root',                   # Usuario por defecto de XAMPP/WAMP
+        'PASSWORD': '',                    # Contraseña vacía (por defecto)
+        'HOST': '127.0.0.1',               # Host local
+        'PORT': '3306',                     # Puerto de MySQL
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
     }
 }
 
@@ -132,8 +143,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/usuarios/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
 
 # Configuración de Email para Gmail REAL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

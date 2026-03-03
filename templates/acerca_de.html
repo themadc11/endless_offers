@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Acerca de EndlessOffers{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-4" style="color: var(--primary);">Acerca de EndlessOffers</h1>
+            
+            <div class="card border-0 shadow-sm rounded-0 mb-4">
+                <div class="card-body p-5">
+                    <h4 class="fw-bold mb-3">Quiénes somos</h4>
+                    <p class="text-muted mb-4">
+                        EndlessOffers nació en 2026 con una misión clara: conectar a consumidores con las mejores ofertas de productos y servicios, mientras ofrecemos a proveedores una plataforma confiable para hacer crecer su negocio.
+                    </p>
+                    
+                    <h4 class="fw-bold mb-3 mt-5">Nuestra visión</h4>
+                    <p class="text-muted mb-4">
+                        Ser el marketplace líder en Colombia, reconocido por la calidad de sus ofertas, la confianza de sus proveedores y la satisfacción de sus usuarios.
+                    </p>
+                    
+                    <h4 class="fw-bold mb-3 mt-5">Nuestros valores</h4>
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="bi bi-shield-check fs-2" style="color: var(--primary);"></i>
+                                <div>
+                                    <h6 class="fw-bold">Confianza</h6>
+                                    <p class="small text-muted">Todos nuestros proveedores son verificados</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="bi bi-tags fs-2" style="color: var(--primary);"></i>
+                                <div>
+                                    <h6 class="fw-bold">Ofertas reales</h6>
+                                    <p class="small text-muted">Descuentos genuinos y transparentes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="bi bi-people fs-2" style="color: var(--primary);"></i>
+                                <div>
+                                    <h6 class="fw-bold">Comunidad</h6>
+                                    <p class="small text-muted">Más de 10,000 usuarios nos respaldan</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="bi bi-headset fs-2" style="color: var(--primary);"></i>
+                                <div>
+                                    <h6 class="fw-bold">Soporte</h6>
+                                    <p class="small text-muted">Atención personalizada 24/7</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="fw-bold mb-3 mt-5">Contacto</h4>
+                    <p class="text-muted">
+                        <i class="bi bi-envelope me-2" style="color: var(--primary);"></i> contacto@endlessoffers.com<br>
+                        <i class="bi bi-telephone me-2" style="color: var(--primary);"></i> +57 123 456 7890<br>
+                        <i class="bi bi-geo-alt me-2" style="color: var(--primary);"></i> Bogotá, Colombia
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Botón para volver al inicio -->
+            <div class="text-center mt-4">
+                <a href="{% url 'home' %}" class="btn btn-outline-dark rounded-0 px-5">
+                    <i class="bi bi-arrow-left me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -126,7 +126,7 @@
         }
         
         .form-header {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-align: center;
         }
         
@@ -137,10 +137,33 @@
             margin-bottom: 5px;
         }
         
-        .form-header p {
-            color: #666;
-            font-size: 1rem;
+        /* 👇 NUEVO ESTILO PARA MENSAJES */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        
+        .alert-error {
+            background: #fee9e9;
+            border: 1px solid #fbc4c4;
+            color: #b02a2a;
+        }
+        
+        .alert-success {
+            background: #e6f4ea;
+            border: 1px solid #b8e0c2;
+            color: #1e7e34;
+        }
+        
+        .alert i {
+            font-size: 1.1rem;
+        }
+        /* 👆 FIN NUEVOS ESTILOS */
         
         .form-group {
             margin-bottom: 20px;
@@ -355,6 +378,14 @@
                 <div class="form-header">
                     <h2>INICIAR SESIÓN</h2>
                 </div>
+                
+                <!-- 👇 MENSAJE DE ERROR MANUAL (si existe) -->
+                {% if error %}
+                    <div class="alert alert-error">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        {{ error }}
+                    </div>
+                {% endif %}
                 
                 <form method="post">
                     {% csrf_token %}

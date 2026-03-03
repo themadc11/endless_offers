@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Proveedores - EndlessOffers{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Título y buscador -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-3" style="color: var(--primary);">PROVEEDORES</h1>
+            <p class="lead text-muted mb-4">Conoce a nuestros vendedores verificados</p>
+            
+            <!-- Buscador -->
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <form class="d-flex" method="GET">
+                        <input type="text" class="form-control rounded-0 me-2" name="buscar" placeholder="Buscar proveedor..." value="{{ request.GET.buscar }}">
+                        <button class="btn rounded-0" style="background-color: var(--primary); color: white;" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid de proveedores (ESTILO CUADRÍCULA) -->
+    <div class="row g-4">
+        {% for proveedor in proveedores %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-0 h-100">
+                <div class="card-body p-4">
+                    <!-- Encabezado con foto y nombre -->
+                    <div class="d-flex align-items-center mb-3">
+                        <!-- Foto o ícono -->
+                        <div class="flex-shrink-0">
+                            {% if proveedor.perfil.foto %}
+                                <img src="{{ proveedor.perfil.foto.url }}" class="rounded-circle" width="60" height="60" style="object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-building" style="font-size: 30px; color: var(--gray);"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Nombre y tipo -->
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="fw-bold mb-0">{{ proveedor.perfil.nombre_completo|default:proveedor.username }}</h5>
+                            <p class="text-muted small mb-0">
+                                <i class="bi bi-tag me-1" style="color: var(--primary);"></i>
+                                {% if proveedor.perfil.verificado %}
+                                    <span class="badge bg-success rounded-0 me-1">Verificado</span>
+                                {% endif %}
+                                <span class="badge bg-primary rounded-0">Proveedor</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Descripción -->
+                    <p class="text-muted small mb-3">
+                        {{ proveedor.perfil.descripcion|default:"Proveedor de productos y servicios de calidad."|truncatechars:80 }}
+                    </p>
+                    
+                    <!-- Sitio web -->
+                    {% if proveedor.perfil.sitio_web %}
+                    <div class="mb-3">
+                        <a href="{{ proveedor.perfil.sitio_web }}" target="_blank" class="text-decoration-none small">
+                            <i class="bi bi-globe2 me-2" style="color: var(--primary);"></i>
+                            {{ proveedor.perfil.sitio_web|cut:"https://"|cut:"http://"|cut:"www." }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Estadísticas rápidas -->
+                    <div class="d-flex justify-content-between text-center mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-0" style="color: var(--primary);">{{ proveedor.ofertas_activas|default:"0" }}</h6>
+                            <small class="text-muted">Ofertas</small>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0" style="color: var(--primary);">
+                                {% if proveedor.reputacion %}{{ proveedor.reputacion }}{% else %}-{% endif %}
+                            </h6>
+                            <small class="text-muted">Reputación</small>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0" style="color: var(--primary);">{{ proveedor.total_calificaciones|default:"0" }}</h6>
+                            <small class="text-muted">Reviews</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Estrellas de reputación -->
+                    {% if proveedor.reputacion %}
+                    <div class="text-warning small mb-3 text-center">
+                        {% for i in "12345"|make_list %}
+                            {% if forloop.counter <= proveedor.reputacion %}
+                                <i class="bi bi-star-fill"></i>
+                            {% elif forloop.counter <= proveedor.reputacion|add:0.5 %}
+                                <i class="bi bi-star-half"></i>
+                            {% else %}
+                                <i class="bi bi-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Botón ver detalle -->
+                    <a href="{% url 'perfil_proveedor' proveedor.username %}" class="btn btn-outline-dark w-100 rounded-0">
+                        Ver detalle <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-shop display-1 text-muted mb-4"></i>
+            <h3 class="text-muted">No hay proveedores disponibles</h3>
+            {% if request.GET.buscar %}
+                <p class="text-muted">No se encontraron resultados para "{{ request.GET.buscar }}"</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if proveedores.has_other_pages %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if proveedores.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-0" href="?page={{ proveedores.previous_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">Anterior</a>
+            </li>
+            {% endif %}
+            
+            {% for i in proveedores.paginator.page_range %}
+            <li class="page-item {% if proveedores.number == i %}active{% endif %}">
+                <a class="page-link rounded-0" href="?page={{ i }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">{{ i }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if proveedores.has_next %}
+            <li class="page-item">
+                <a class="page-link rounded-0" href="?page={{ proveedores.next_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">Siguiente</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

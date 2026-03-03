@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout  # 👈 Agregado logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Avg, Count
@@ -10,60 +10,63 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 
-
 from .forms import RegistroForm, PerfilForm
-from .models import SolicitudProveedor
+from .models import Perfil, SolicitudProveedor
 
 # ==================== AUTENTICACIÓN ====================
 
 def login_view(request):
-    """Vista personalizada de inicio de sesión que acepta email o username"""
     if request.user.is_authenticated:
-        return redirect('lista_ofertas')
+        return redirect('home')
+    
+    error_message = None
     
     if request.method == 'POST':
         username_or_email = request.POST.get('username')
         password = request.POST.get('password')
         
-        # Verificar si es email o username
-        user = None
-        if '@' in username_or_email:
-            # Es un email - buscar usuario por email
-            try:
-                user_obj = User.objects.get(email=username_or_email)
-                user = authenticate(request, username=user_obj.username, password=password)
-            except User.DoesNotExist:
-                user = None
+        if not username_or_email or not password:
+            error_message = '❌ Por favor ingresa usuario/email y contraseña'
         else:
-            # Es username - autenticar directamente
-            user = authenticate(request, username=username_or_email, password=password)
+            user = None
+            if '@' in username_or_email:
+                try:
+                    user_obj = User.objects.get(email=username_or_email)
+                    user = authenticate(request, username=user_obj.username, password=password)
+                except User.DoesNotExist:
+                    error_message = '❌ No existe una cuenta con ese email'
+            else:
+                user = authenticate(request, username=username_or_email, password=password)
+                if not user:
+                    error_message = '❌ Usuario/Email o contraseña incorrectos'
+            
+            if user:
+                login(request, user)
+                messages.success(request, f'¡Bienvenido {user.username}!')
+                return redirect('home')
         
-        if user is not None:
-            login(request, user)
-            messages.success(request, f'¡Bienvenido {user.username}!')
-            return redirect('lista_ofertas')
-        else:
-            messages.error(request, '❌ Usuario/Email o contraseña incorrectos')
-            return redirect('login')
+        return render(request, 'usuarios/login.html', {'error': error_message})
     
     return render(request, 'usuarios/login.html')
 
 
+def logout_view(request):
+    """Cerrar sesión y redirigir al home"""
+    logout(request)
+    return redirect('home')
+
+
 def registro(request):
-    """Registro de nuevo usuario con login automático"""
     if request.user.is_authenticated:
-        return redirect('lista_ofertas')
+        return redirect('home')
     
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()  # Guarda el usuario
-            
-            # 👇 LOGIN AUTOMÁTICO
+            user = form.save()
             login(request, user)
-            
             messages.success(request, f'¡Bienvenido {user.username}! Tu cuenta ha sido creada exitosamente.')
-            return redirect('lista_ofertas')  # Redirige al home
+            return redirect('home')
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
@@ -77,42 +80,43 @@ def registro(request):
 @login_required
 def perfil(request):
     """Vista del perfil del usuario"""
-    perfil = request.user.perfil
+    # Crear perfil si no existe
+    perfil, created = Perfil.objects.get_or_create(user=request.user)
+    if created:
+        messages.info(request, "Perfil creado automáticamente. Completa tus datos.")
+    
     solicitud = SolicitudProveedor.objects.filter(
         usuario=request.user
     ).order_by('-fecha_solicitud').first()
+    
+    context = {
+        "perfil": perfil,
+        "solicitud": solicitud,
+    }
     
     # Si es proveedor, obtenemos datos extra
     if perfil.rol == 'proveedor':
         from ofertas.models import Oferta, Calificacion
         
         ofertas_activas = Oferta.objects.filter(
-            proveedor=request.user, 
+            proveedor=perfil,
             estado='activa'
         ).count()
         
-        # Calcular reputación
         calificaciones = Calificacion.objects.filter(
-            oferta__proveedor=request.user
+            oferta__proveedor=perfil
         ).aggregate(
             promedio=Avg('puntuacion'),
             total=Count('id')
         )
         
-        context = {
-            "perfil": perfil,
-            "solicitud": solicitud,
+        context.update({
             "ofertas_activas": ofertas_activas,
             "reputacion": {
                 'promedio': round(calificaciones['promedio'], 1) if calificaciones['promedio'] else 0,
                 'total': calificaciones['total'] or 0
             }
-        }
-    else:
-        context = {
-            "perfil": perfil,
-            "solicitud": solicitud
-        }
+        })
     
     return render(request, "usuarios/perfil.html", context)
 
@@ -133,7 +137,14 @@ def editar_perfil(request):
     else:
         form = PerfilForm(instance=perfil)
 
-    return render(request, 'usuarios/editar_perfil.html', {'form': form})
+    # 👇 PASAMOS LA INSTANCIA perfil Y LA VARIABLE es_proveedor
+    context = {
+        'form': form,
+        'perfil': perfil,  # 👈 ESTO ES LO QUE FALTABA
+        'es_proveedor': perfil.rol == 'proveedor',
+    }
+    
+    return render(request, 'usuarios/editar_perfil.html', context)
 
 
 # ==================== SISTEMA DE ROLES ====================
@@ -143,12 +154,10 @@ def solicitar_proveedor(request):
     """Solicitud para convertirse en proveedor"""
     perfil = request.user.perfil
 
-    # Validaciones
     if perfil.rol == "proveedor":
         messages.info(request, "ℹ️ Ya eres proveedor.")
         return redirect("perfil")
 
-    # Verificar si ya tiene solicitud pendiente
     solicitud_existente = SolicitudProveedor.objects.filter(
         usuario=request.user,
         estado='pendiente'
@@ -158,7 +167,6 @@ def solicitar_proveedor(request):
         messages.warning(request, "⏳ Ya tienes una solicitud pendiente.")
         return redirect("perfil")
 
-    # Verificar si tiene solicitud rechazada reciente (opcional)
     solicitud_rechazada_reciente = SolicitudProveedor.objects.filter(
         usuario=request.user,
         estado='rechazada',
@@ -172,41 +180,18 @@ def solicitar_proveedor(request):
         )
         return redirect("perfil")
 
-    # Crear solicitud
-    SolicitudProveedor.objects.create(
-        usuario=request.user
-    )
-
-    messages.success(
-        request, 
-        "✅ Solicitud enviada correctamente. Recibirás una notificación cuando sea aprobada."
-    )
+    SolicitudProveedor.objects.create(usuario=request.user)
+    messages.success(request, "✅ Solicitud enviada correctamente.")
     return redirect("perfil")
 
 
-# ==================== FUNCIÓN ELIMINADA ====================
-# La función 'ser_proveedor' ha sido eliminada porque ahora se usa el flujo de solicitud + aprobación
-# Si aún la necesitas, descoméntala aquí:
-"""
-@login_required
-def ser_proveedor(request):
-    perfil = request.user.perfil
-    perfil.rol = "proveedor"
-    perfil.save()
-    messages.success(request, "✅ Ahora eres proveedor.")
-    return redirect("lista_ofertas")
-"""
-
-
 # ==================== RECUPERACIÓN DE CONTRASEÑA ====================
-
-# VERSIÓN CORREGIDA - Usando la clase de Django
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'usuarios/password_reset.html'
     email_template_name = 'usuarios/password_reset_email.html'
     subject_template_name = 'usuarios/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
-    html_email_template_name = 'usuarios/password_reset_email.html'  # 👈 ESTA LÍNEA ES CLAVE
+    html_email_template_name = 'usuarios/password_reset_email.html'
     
     def form_valid(self, form):
         messages.success(self.request, '📧 Revisa tu correo. Te hemos enviado las instrucciones.')
@@ -216,14 +201,13 @@ class CustomPasswordResetView(PasswordResetView):
         email = self.request.POST.get('email', '')
         messages.error(self.request, f'❌ No encontramos una cuenta con el email: {email}')
         return super().form_invalid(form)
-
-# Si quieres mantener tu función simple, así debe quedar:
+    
+    
 def password_reset_request(request):
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            # Verificar si existe el email
             if User.objects.filter(email=email).exists():
                 form.save(
                     request=request,

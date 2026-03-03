@@ -25,18 +25,21 @@ class Oferta(models.Model):
     )
 
     proveedor = models.ForeignKey(
-    Perfil,
-    on_delete=models.CASCADE,
-    limit_choices_to={'rol': 'proveedor'}
-)
+        Perfil,
+        on_delete=models.CASCADE,
+        limit_choices_to={'rol': 'proveedor'}
+    )
 
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
-    precio_original = models.DecimalField(max_digits=10, decimal_places=2)
-    precio_descuento = models.DecimalField(max_digits=10, decimal_places=2)
-    porcentaje_descuento = models.DecimalField(max_digits=5, decimal_places=2)
+    
+    # 👉 DecimalField con 15 dígitos totales y 2 decimales (suficiente para cualquier oferta)
+    precio_original = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Precio original")
+    precio_descuento = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Precio con descuento")
+    
+    porcentaje_descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     imagen = models.ImageField(upload_to='ofertas/', blank=True, null=True)
-    enlace_externo = models.URLField()
+    enlace_externo = models.URLField(blank=True, null=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     categorias = models.ManyToManyField(Categoria)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -61,8 +64,8 @@ class Favorito(models.Model):
         return f"{self.usuario} ❤️ {self.oferta}"
     
 class Comentario(models.Model):
-    oferta = models.ForeignKey(Oferta, on_delete=models.CASCADE, related_name="comentarios")
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    oferta = models.ForeignKey(Oferta, on_delete=models.CASCADE, related_name='comentarios')
     contenido = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 

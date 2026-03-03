@@ -1,7 +1,310 @@
-<h2>Crear Oferta</h2>
+{% extends "base.html" %}
+{% load static %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar</button>
-</form>
+{% block title %}Crear Oferta - EndlessOffers{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Título -->
+            <div class="d-flex align-items-center mb-4">
+                <div class="rounded-circle bg-light p-3 me-3" style="color: var(--primary);">
+                    <i class="bi bi-plus-circle fs-1"></i>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-bold" style="color: var(--primary);">Crear Oferta</h1>
+                    <p class="text-muted lead">Completa los campos para publicar una nueva oferta</p>
+                </div>
+            </div>
+
+            <!-- Mensajes -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-0 mb-4">
+                        <i class="bi bi-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Errores del formulario -->
+            {% if form.errors %}
+                <div class="alert alert-danger rounded-0 mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Por favor corrige los siguientes errores:</strong>
+                    <ul class="mt-2 mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Formulario -->
+            <div class="card border-0 shadow-lg rounded-0">
+                <div class="card-body p-5">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- SECCIÓN: INFORMACIÓN BÁSICA -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-4 pb-2" style="color: var(--primary); border-bottom: 2px solid var(--primary);">
+                                <i class="bi bi-info-circle me-2"></i>Información Básica
+                            </h5>
+
+                            <!-- Título -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Título de la oferta <span class="text-danger">*</span></label>
+                                {{ form.titulo }}
+                                <small class="text-muted">Máximo 150 caracteres. Sé descriptivo pero conciso.</small>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Descripción <span class="text-danger">*</span></label>
+                                {{ form.descripcion }}
+                                <small class="text-muted">Explica los beneficios y características principales.</small>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN: PRECIOS -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-4 pb-2" style="color: var(--primary); border-bottom: 2px solid var(--primary);">
+                                <i class="bi bi-currency-dollar me-2"></i>Precios
+                            </h5>
+
+                            <div class="row g-4">
+                                <!-- Precio original -->
+                                <div class="col-md-6">
+                                    <div class="bg-light p-4 rounded-0">
+                                        <label class="form-label fw-bold h6">Precio original <span class="text-danger">*</span></label>
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text bg-white rounded-0 border-end-0">
+                                                <i class="bi bi-currency-dollar" style="color: var(--primary);"></i>
+                                            </span>
+                                            <input type="text" 
+                                                   name="precio_original" 
+                                                   class="form-control rounded-0" 
+                                                   value="{{ form.precio_original.value|default:'' }}" 
+                                                   id="precio_original"
+                                                   oninput="formatearPrecio(this)"
+                                                   required>
+                                        </div>
+                                        <small class="text-muted d-block">Precio sin descuento</small>
+                                        <small class="text-muted">Ej: 2.299.900</small>
+                                    </div>
+                                </div>
+
+                                <!-- Precio descuento -->
+                                <div class="col-md-6">
+                                    <div class="bg-light p-4 rounded-0">
+                                        <label class="form-label fw-bold h6">Precio con descuento <span class="text-danger">*</span></label>
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text bg-white rounded-0 border-end-0">
+                                                <i class="bi bi-currency-dollar" style="color: var(--primary);"></i>
+                                            </span>
+                                            <input type="text" 
+                                                   name="precio_descuento" 
+                                                   class="form-control rounded-0" 
+                                                   value="{{ form.precio_descuento.value|default:'' }}" 
+                                                   id="precio_descuento"
+                                                   oninput="formatearPrecio(this)"
+                                                   required>
+                                        </div>
+                                        <small class="text-muted d-block">Precio final con descuento</small>
+                                        <small class="text-muted">Ej: 1.149.900</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CALCULADORA DE DESCUENTO -->
+                            <div class="alert alert-light rounded-0 p-4 mt-4" id="calculadora-descuento"
+                                style="border-left: 4px solid var(--primary);">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-calculator fs-1 me-3" style="color: var(--primary);"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1" id="porcentaje-descuento">El porcentaje de descuento se calculará automáticamente</h6>
+                                        <p class="small text-muted mb-0">Al guardar la oferta, el sistema calculará el porcentaje de descuento basado en los precios ingresados.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN: IMAGEN -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-4 pb-2" style="color: var(--primary); border-bottom: 2px solid var(--primary);">
+                                <i class="bi bi-image me-2"></i>Imagen del producto
+                            </h5>
+
+                            <div class="bg-light p-4 rounded-0">
+                                <label class="form-label fw-bold">Imagen</label>
+                                <div class="border-2 border-dashed rounded-0 p-4 text-center bg-white"
+                                    style="border: 2px dashed var(--light-gray);">
+                                    <div class="mb-3">
+                                        <i class="bi bi-cloud-arrow-up"
+                                            style="font-size: 3rem; color: var(--primary);"></i>
+                                    </div>
+                                    <div class="mb-2">
+                                        <input type="file" name="imagen" class="form-control rounded-0 d-none"
+                                            id="fileInput" accept="image/*">
+                                        <button type="button" class="btn btn-outline-primary rounded-0 px-4 py-2"
+                                            onclick="document.getElementById('fileInput').click();">
+                                            <i class="bi bi-folder2-open me-2"></i>Seleccionar archivo
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block">Formatos: JPG, PNG, GIF. Máximo 2MB</small>
+                                    <small class="text-muted d-block mt-2" id="fileSelected">Ningún archivo
+                                        seleccionado</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN: ENLACE EXTERNO -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-4 pb-2" style="color: var(--primary); border-bottom: 2px solid var(--primary);">
+                                <i class="bi bi-link-45deg me-2"></i>Enlace externo
+                            </h5>
+
+                            <div class="bg-light p-4 rounded-0">
+                                <label class="form-label fw-bold">Enlace a página oficial</label>
+                                {{ form.enlace_externo }}
+                                <small class="text-muted d-block mt-2">Opcional. Si tienes una página web con más
+                                    detalles del producto.</small>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN: CATEGORÍAS - CORREGIDA -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-4 pb-2" style="color: var(--primary); border-bottom: 2px solid var(--primary);">
+                                <i class="bi bi-grid me-2"></i>Categorías
+                            </h5>
+
+                            <div class="bg-light p-4 rounded-0">
+                                <label class="form-label fw-bold">Selecciona las categorías <span class="text-danger">*</span></label>
+
+                                {% if form.categorias.field.queryset %}
+                                    <div class="row g-3 mt-2">
+                                        {% for categoria in form.categorias.field.queryset %}
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input type="checkbox" 
+                                                           name="categorias" 
+                                                           value="{{ categoria.id }}" 
+                                                           class="form-check-input" 
+                                                           id="cat{{ categoria.id }}"
+                                                           {% if categoria.id in form.categorias.value %}checked{% endif %}>
+                                                    <label class="form-check-label" for="cat{{ categoria.id }}">
+                                                        {{ categoria.nombre }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No hay categorías disponibles. Por favor, contacta al administrador.</p>
+                                {% endif %}
+
+                                <small class="text-muted d-block mt-3">Puedes seleccionar una o varias categorías</small>
+
+                                {% if form.categorias.errors %}
+                                    <div class="text-danger small mt-2">
+                                        {{ form.categorias.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Términos y condiciones -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terminos" required>
+                                <label class="form-check-label" for="terminos">
+                                    Confirmo que la información proporcionada es correcta y acepto los <a
+                                        href="{% url 'terminos' %}" target="_blank">términos y condiciones</a> de
+                                    publicación.
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{% url 'mis_ofertas' %}" class="btn btn-outline-dark rounded-0 px-5 py-3">
+                                <i class="bi bi-x-lg me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn rounded-0 px-5 py-3"
+                                style="background-color: var(--primary); color: white;">
+                                <i class="bi bi-check-circle me-2"></i>Guardar oferta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para formato de moneda y porcentaje -->
+<script>
+    // Función para formatear número con puntos
+    function formatearPrecio(input) {
+        let valor = input.value.replace(/\D/g, '');
+        if (valor === '') {
+            input.value = '';
+            return;
+        }
+        
+        // Eliminar ceros a la izquierda
+        valor = valor.replace(/^0+/, '');
+        if (valor === '') valor = '0';
+        
+        // Formatear con puntos
+        let valorFormateado = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        input.value = valorFormateado;
+        
+        calcularDescuento();
+    }
+
+    // Calcular porcentaje de descuento
+    function calcularDescuento() {
+        let original = document.getElementById('precio_original');
+        let descuento = document.getElementById('precio_descuento');
+        let span = document.getElementById('porcentaje-descuento');
+        
+        if (!original || !descuento || !span) return;
+        
+        let originalValor = parseFloat(original.value.replace(/\./g, '')) || 0;
+        let descuentoValor = parseFloat(descuento.value.replace(/\./g, '')) || 0;
+        
+        if (originalValor > 0 && descuentoValor > 0 && descuentoValor < originalValor) {
+            let porcentaje = ((originalValor - descuentoValor) / originalValor * 100).toFixed(2);
+            span.innerHTML = `<strong style="color: var(--primary); font-size: 1.2rem;">¡${porcentaje}% de descuento!</strong>`;
+        } else if (descuentoValor >= originalValor && originalValor > 0) {
+            span.innerHTML = 'El precio con descuento debe ser menor al original';
+        } else {
+            span.innerHTML = 'El porcentaje de descuento se calculará automáticamente';
+        }
+    }
+
+    // Mostrar nombre del archivo seleccionado
+    document.getElementById('fileInput')?.addEventListener('change', function (e) {
+        let fileName = e.target.files[0] ? e.target.files[0].name : 'Ningún archivo seleccionado';
+        document.getElementById('fileSelected').textContent = fileName;
+    });
+
+    // Calcular al cargar la página
+    window.addEventListener('load', function() {
+        let original = document.getElementById('precio_original');
+        let descuento = document.getElementById('precio_descuento');
+        if (original && original.value) formatearPrecio(original);
+        if (descuento && descuento.value) formatearPrecio(descuento);
+    });
+</script>
+{% endblock %}

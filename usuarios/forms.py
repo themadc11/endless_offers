@@ -28,19 +28,14 @@ class RegistroForm(UserCreationForm):
         if '.' not in dominio:
             raise forms.ValidationError("❌ El dominio del email no es válido")
         
-        # ✅ ACEPTA CUALQUIER DOMINIO CON FORMATO VÁLIDO
-        # Gmail, Hotmail, Yahoo, empresas colombianas (vecol.com.co), etc.
-        
         return email.lower()  # Guardar en minúsculas
     
     def clean_username(self):
         username = self.cleaned_data.get('username')
         
-        # Validar que el username no exista
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("❌ Este nombre de usuario ya está en uso")
         
-        # Validar longitud y caracteres
         if len(username) < 3:
             raise forms.ValidationError("❌ El nombre de usuario debe tener al menos 3 caracteres")
         
@@ -59,7 +54,6 @@ class RegistroForm(UserCreationForm):
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("❌ Las contraseñas no coinciden")
         
-        # Validaciones de contraseña
         if len(password1) < 8:
             raise forms.ValidationError("❌ La contraseña debe tener al menos 8 caracteres")
         
@@ -76,13 +70,41 @@ class RegistroForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            
-            # Crear perfil automáticamente (si no se crea con señal)
             Perfil.objects.get_or_create(user=user)
-            
         return user
+
 
 class PerfilForm(forms.ModelForm):
     class Meta:
         model = Perfil
-        fields = ['telefono', 'direccion', 'foto', 'descripcion']
+        fields = [
+            'telefono', 
+            'direccion', 
+            'foto', 
+            'descripcion',
+            'nombre_completo',
+            'sitio_web',  # 👈 NUEVO CAMPO AGREGADO
+        ]
+        widgets = {
+            'sitio_web': forms.URLInput(attrs={
+                'class': 'form-control rounded-0',
+                'placeholder': 'https://www.ejemplo.com'
+            }),
+            'telefono': forms.TextInput(attrs={
+                'class': 'form-control rounded-0',
+                'placeholder': '+57 300 123 4567'
+            }),
+            'direccion': forms.TextInput(attrs={
+                'class': 'form-control rounded-0',
+                'placeholder': 'Ciudad, dirección completa'
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control rounded-0',
+                'rows': 4,
+                'placeholder': 'Cuéntanos sobre ti o tu negocio...'
+            }),
+            'nombre_completo': forms.TextInput(attrs={
+                'class': 'form-control rounded-0',
+                'placeholder': 'Ej: Juan Pérez o Nombre de Empresa'
+            }),
+        }

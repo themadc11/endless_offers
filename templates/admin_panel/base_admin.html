@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel Administrativo - EndlessOffers{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar MEJORADO -->
+        <div class="col-md-3 col-lg-2 p-0" style="background-color: var(--dark); min-height: calc(100vh - 76px);">
+            <div class="p-4">
+                <!-- Perfil del admin -->
+                <div class="text-center mb-4">
+                    <i class="bi bi-shield-lock text-white" style="font-size: 3rem;"></i>
+                    <h6 class="text-white mt-2">{{ user.username }}</h6>
+                    <span class="badge bg-primary rounded-0">Administrador</span>
+                </div>
+                
+                <hr class="bg-white opacity-25">
+                
+                <h6 class="text-white-50 small fw-bold mb-3">PRINCIPAL</h6>
+                <nav class="nav flex-column mb-4">
+                    <a href="{% url 'admin_dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'admin_dashboard' %}active bg-primary{% endif %}">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </nav>
+                
+                <h6 class="text-white-50 small fw-bold mb-3">GESTIÓN</h6>
+                <nav class="nav flex-column mb-4">
+                    <!-- Usuarios (con submenú) -->
+                    <div class="mb-2">
+                        <a href="#menuUsuarios" class="nav-link text-white" data-bs-toggle="collapse">
+                            <i class="bi bi-people me-2"></i> Usuarios
+                            <i class="bi bi-chevron-down float-end"></i>
+                        </a>
+                        <div class="collapse show" id="menuUsuarios">
+                            <a href="{% url 'admin_usuarios' %}" class="nav-link text-white ms-4 small">📋 Lista de usuarios</a>
+                            <a href="{% url 'admin_solicitudes_proveedores' %}" class="nav-link text-white ms-4 small">
+                                📝 Solicitudes
+                                {% if solicitudes_pendientes_count > 0 %}
+                                <span class="badge bg-danger ms-2">{{ solicitudes_pendientes_count }}</span>
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'admin_usuarios' %}?rol=proveedor" class="nav-link text-white ms-4 small">✅ Proveedores</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Ofertas -->
+                    <div class="mb-2">
+                        <a href="#menuOfertas" class="nav-link text-white" data-bs-toggle="collapse">
+                            <i class="bi bi-tags me-2"></i> Ofertas
+                            <i class="bi bi-chevron-down float-end"></i>
+                        </a>
+                        <div class="collapse show" id="menuOfertas">
+                            <a href="{% url 'lista_ofertas' %}" class="nav-link text-white ms-4 small">📦 Todas las ofertas</a>
+                            <a href="{% url 'admin_ofertas_pendientes' %}" class="nav-link text-white ms-4 small">
+                                ⏳ Pendientes
+                                {% if ofertas_pendientes_count > 0 %}
+                                <span class="badge bg-danger ms-2">{{ ofertas_pendientes_count }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Categorías -->
+                    <div class="mb-2">
+                        <a href="#menuCategorias" class="nav-link text-white" data-bs-toggle="collapse">
+                            <i class="bi bi-grid me-2"></i> Categorías
+                            <i class="bi bi-chevron-down float-end"></i>
+                        </a>
+                        <div class="collapse show" id="menuCategorias">
+                            <a href="{% url 'admin_categorias' %}" class="nav-link text-white ms-4 small">📋 Lista de categorías</a>
+                            <a href="{% url 'admin_crear_categoria' %}" class="nav-link text-white ms-4 small">➕ Crear categoría</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Comentarios (NUEVO) -->
+                    <div class="mb-2">
+                        <a href="#menuComentarios" class="nav-link text-white" data-bs-toggle="collapse">
+                            <i class="bi bi-chat me-2"></i> Comentarios
+                            <i class="bi bi-chevron-down float-end"></i>
+                        </a>
+                        <div class="collapse show" id="menuComentarios">
+                            <a href="{% url 'admin_comentarios' %}" class="nav-link text-white ms-4 small">💬 Todos los comentarios</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Calificaciones (NUEVO) -->
+                    <div class="mb-2">
+                        <a href="#menuCalificaciones" class="nav-link text-white" data-bs-toggle="collapse">
+                            <i class="bi bi-star me-2"></i> Calificaciones
+                            <i class="bi bi-chevron-down float-end"></i>
+                        </a>
+                        <div class="collapse show" id="menuCalificaciones">
+                            <a href="{% url 'admin_calificaciones' %}" class="nav-link text-white ms-4 small">⭐ Todas las calificaciones</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Favoritos (NUEVO) -->
+                    <div class="mb-2">
+                        <a href="#menuFavoritos" class="nav-link text-white" data-bs-toggle="collapse">
+                            <i class="bi bi-heart me-2"></i> Favoritos
+                            <i class="bi bi-chevron-down float-end"></i>
+                        </a>
+                        <div class="collapse show" id="menuFavoritos">
+                            <a href="{% url 'admin_favoritos' %}" class="nav-link text-white ms-4 small">❤️ Todos los favoritos</a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <h6 class="text-white-50 small fw-bold mb-3">SISTEMA</h6>
+                <nav class="nav flex-column">
+                    <a href="{% url 'home' %}" class="nav-link text-white">
+                        <i class="bi bi-house-door me-2"></i> Volver al inicio
+                    </a>
+                    <a href="{% url 'logout' %}" class="nav-link text-white">
+                        <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Contenido principal -->
+        <div class="col-md-9 col-lg-10 p-4">
+            <!-- Barra de título -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold" style="color: var(--dark);">{% block admin_title %}Panel de Control{% endblock %}</h2>
+                <div class="d-flex align-items-center">
+                    <span class="text-muted me-3">{{ now|date:"l, d F Y" }}</span>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-dark btn-sm rounded-0 dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear me-2"></i> Acciones rápidas
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'admin_crear_categoria' %}"><i class="bi bi-plus-circle"></i> Nueva categoría</a></li>
+                            <li><a class="dropdown-item" href="{% url 'admin_usuarios' %}"><i class="bi bi-person-plus"></i> Ver usuarios</a></li>
+                            <li><a class="dropdown-item" href="{% url 'admin_solicitudes_proveedores' %}"><i class="bi bi-person-up"></i> Solicitudes pendientes</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mensajes -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-0 mb-4">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Contenido dinámico -->
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

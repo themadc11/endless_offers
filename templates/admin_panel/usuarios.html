@@ -1,0 +1,208 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_title %}Gestión de Usuarios{% endblock %}
+
+{% block admin_content %}
+<div class="card border-0 shadow-sm rounded-0">
+    <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0">
+            <i class="bi bi-people me-2" style="color: var(--primary);"></i>
+            Lista de Usuarios
+        </h5>
+        <div class="d-flex gap-2">
+            <!-- Filtros -->
+            <div class="btn-group">
+                <a href="{% url 'admin_usuarios' %}" class="btn btn-sm btn-outline-dark rounded-0 {% if not rol_actual %}active{% endif %}">Todos</a>
+                <a href="?rol=consumidor" class="btn btn-sm btn-outline-dark rounded-0 {% if rol_actual == 'consumidor' %}active{% endif %}">Consumidores</a>
+                <a href="?rol=proveedor" class="btn btn-sm btn-outline-dark rounded-0 {% if rol_actual == 'proveedor' %}active{% endif %}">Proveedores</a>
+            </div>
+            <!-- Buscador -->
+            <form class="d-flex" method="GET">
+                <input class="form-control form-control-sm me-2 rounded-0" type="search" name="buscar" placeholder="Buscar usuario..." value="{{ request.GET.buscar }}">
+                <button class="btn btn-sm btn-outline-dark rounded-0" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="p-4">Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Verificado</th>
+                        <th>Fecha registro</th>
+                        <th>Ofertas</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td class="p-4">
+                            <div class="d-flex align-items-center">
+                                {% if usuario.perfil.foto %}
+                                    <img src="{{ usuario.perfil.foto.url }}" class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;">
+                                {% else %}
+                                    <i class="bi bi-person-circle fs-3 me-3" style="color: var(--primary);"></i>
+                                {% endif %}
+                                <div>
+                                    <h6 class="fw-bold mb-0">{{ usuario.username }}</h6>
+                                    <small class="text-muted">{{ usuario.first_name }} {{ usuario.last_name }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            <span class="badge px-3 py-2 rounded-0 
+                                {% if usuario.perfil.rol == 'proveedor' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                {{ usuario.perfil.rol }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if usuario.perfil.verificado %}
+                                <span class="badge bg-success rounded-0 px-3 py-2">
+                                    <i class="bi bi-patch-check-fill me-1"></i> Verificado
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-0 px-3 py-2">
+                                    <i class="bi bi-clock me-1"></i> Pendiente
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if usuario.perfil.rol == 'proveedor' %}
+                                <span class="badge bg-dark rounded-0 px-3 py-2">{{ usuario.ofertas.count }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-dark rounded-0 dropdown-toggle" data-bs-toggle="dropdown">
+                                    Acciones
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <!-- Cambiar rol -->
+                                    <li>
+                                        <form method="post" action="{% url 'cambiar_rol_usuario' usuario.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="rol" value="{% if usuario.perfil.rol == 'proveedor' %}consumidor{% else %}proveedor{% endif %}">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-arrow-repeat me-2"></i>
+                                                Hacer {{ usuario.perfil.rol|default:"consumidor" }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                    
+                                    <!-- 👇 BOTÓN DE VERIFICAR (solo para proveedores no verificados) -->
+                                    {% if usuario.perfil.rol == 'proveedor' and not usuario.perfil.verificado %}
+                                    <li>
+                                        <form method="post" action="{% url 'verificar_proveedor' usuario.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item" style="color: #28a745;">
+                                                <i class="bi bi-patch-check me-2"></i> Marcar como verificado
+                                            </button>
+                                        </form>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    <li>
+                                        <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                                            <i class="bi bi-eye me-2"></i> Ver detalles
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#eliminarUsuarioModal{{ usuario.id }}">
+                                            <i class="bi bi-trash me-2"></i> Eliminar usuario
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- MODAL ELIMINAR USUARIO -->
+                            <div class="modal fade" id="eliminarUsuarioModal{{ usuario.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-0">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmar eliminación</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            <p>¿Estás seguro de eliminar al usuario <strong>"{{ usuario.username }}"</strong>?</p>
+                                            <div class="alert alert-danger rounded-0">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                <strong>Esto eliminará:</strong>
+                                                <ul class="mt-2 mb-0">
+                                                    <li>Su perfil</li>
+                                                    {% if usuario.perfil.rol == 'proveedor' %}
+                                                    <li>Todas sus ofertas</li>
+                                                    {% endif %}
+                                                    <li>Todos sus comentarios</li>
+                                                    <li>Todos sus favoritos</li>
+                                                    <li>Todas sus calificaciones</li>
+                                                </ul>
+                                            </div>
+                                            <p class="text-muted small mt-2">Esta acción no se puede deshacer.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-dark rounded-0" data-bs-dismiss="modal">Cancelar</button>
+                                            <form method="post" action="{% url 'eliminar_usuario' usuario.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger rounded-0">
+                                                    <i class="bi bi-trash me-2"></i> Eliminar permanentemente
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center p-5">
+                            <i class="bi bi-people fs-1 text-muted d-block mb-3"></i>
+                            <p class="text-muted mb-0">No hay usuarios registrados</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Paginación -->
+    {% if usuarios.has_other_pages %}
+    <div class="card-footer bg-white p-4 border-0">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                {% if usuarios.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-0" href="?page={{ usuarios.previous_page_number }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">Anterior</a>
+                </li>
+                {% endif %}
+                
+                {% for i in usuarios.paginator.page_range %}
+                <li class="page-item {% if usuarios.number == i %}active{% endif %}">
+                    <a class="page-link rounded-0" href="?page={{ i }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">{{ i }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if usuarios.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-0" href="?page={{ usuarios.next_page_number }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">Siguiente</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

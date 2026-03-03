@@ -21,6 +21,13 @@ class Perfil(models.Model):
     direccion = models.CharField(max_length=255, blank=True)
     foto = models.ImageField(upload_to='perfiles/', blank=True, null=True)
     descripcion = models.TextField(blank=True)
+    nombre_completo = models.CharField(max_length=100, blank=True)
+    
+    # 👇 NUEVO CAMPO: Sitio web oficial (solo para proveedores)
+    sitio_web = models.URLField(max_length=200, blank=True, null=True, verbose_name="Sitio web oficial")
+    
+    # Campo para verificación
+    verificado = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} - {self.rol}"

@@ -1,0 +1,227 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold" style="color: var(--dark);">Dashboard</h2>
+    <span class="text-muted">{{ now|date:"l, d F Y" }}</span>
+</div>
+
+<!-- Tarjetas de estadísticas -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-people fs-1" style="color: var(--primary);"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h6 class="text-muted mb-1">Usuarios totales</h6>
+                    <h3 class="fw-bold mb-0" style="color: var(--dark);">{{ total_usuarios }}</h3>
+                    <small class="text-muted">{{ total_proveedores }} proveedores</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-tags fs-1" style="color: var(--primary);"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h6 class="text-muted mb-1">Ofertas</h6>
+                    <h3 class="fw-bold mb-0" style="color: var(--dark);">{{ total_ofertas }}</h3>
+                    <small class="text-danger">{{ ofertas_pendientes }} pendientes</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-person-up fs-1" style="color: var(--primary);"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h6 class="text-muted mb-1">Solicitudes</h6>
+                    <h3 class="fw-bold mb-0" style="color: var(--dark);">{{ solicitudes_pendientes }}</h3>
+                    <small class="text-muted">pendientes</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-star fs-1" style="color: var(--primary);"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h6 class="text-muted mb-1">Calificaciones</h6>
+                    <h3 class="fw-bold mb-0" style="color: var(--dark);">4.5</h3>
+                    <small class="text-muted">promedio general</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de actividad por día (reemplaza al gráfico) -->
+<div class="card border-0 shadow-sm rounded-0 mb-5">
+    <div class="card-header bg-white p-4 border-0">
+        <h5 class="fw-bold mb-0">Actividad últimos 7 días</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="p-4">Día</th>
+                        <th class="text-center">Solicitudes</th>
+                        <th class="text-center">Ofertas</th>
+                        <th class="text-center">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in "1234567"|make_list %}
+                    {% with index=forloop.counter0 %}
+                    <tr>
+                        <td class="p-4">
+                            <h6 class="fw-bold mb-0">{{ dias|slice:index|first|default:"-" }}</h6>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-primary rounded-0 px-3 py-2">{{ solicitudes_data|slice:index|first|default:"0" }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-success rounded-0 px-3 py-2">{{ ofertas_data|slice:index|first|default:"0" }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% with total=solicitudes_data|slice:index|first|add:ofertas_data|slice:index|first %}
+                            <span class="fw-bold">{{ total|default:"0" }}</span>
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Actividad reciente - Dos columnas -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-0">
+            <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Últimas solicitudes</h5>
+                <a href="{% url 'admin_solicitudes_proveedores' %}" class="btn btn-sm btn-outline-dark rounded-0">Ver todas</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for solicitud in ultimas_solicitudes %}
+                    <div class="list-group-item p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ solicitud.usuario.username }}</h6>
+                                <small class="text-muted">{{ solicitud.fecha_solicitud|timesince }}</small>
+                            </div>
+                            <span class="badge px-3 py-2 rounded-0 
+                                {% if solicitud.estado == 'pendiente' %}bg-warning text-dark
+                                {% elif solicitud.estado == 'aprobada' %}bg-success
+                                {% else %}bg-danger{% endif %}">
+                                {{ solicitud.estado }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center">
+                        <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                        <p class="text-muted">No hay solicitudes</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-0">
+            <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Últimas ofertas</h5>
+                <a href="{% url 'admin_ofertas_pendientes' %}" class="btn btn-sm btn-outline-dark rounded-0">Ver todas</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for oferta in ultimas_ofertas %}
+                    <div class="list-group-item p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ oferta.titulo|truncatechars:30 }}</h6>
+                                <small class="text-muted">{{ oferta.proveedor.user.username }} • {{ oferta.fecha_creacion|timesince }}</small>
+                            </div>
+                            <span class="badge px-3 py-2 rounded-0
+                                {% if oferta.estado == 'activa' %}bg-success
+                                {% elif oferta.estado == 'pendiente' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ oferta.estado }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center">
+                        <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                        <p class="text-muted">No hay ofertas</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Últimos usuarios registrados -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-0">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">Últimos usuarios registrados</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="p-4">Usuario</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Fecha registro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in ultimos_usuarios %}
+                            <tr>
+                                <td class="p-4">
+                                    <h6 class="fw-bold mb-0">{{ usuario.username }}</h6>
+                                </td>
+                                <td>{{ usuario.email }}</td>
+                                <td>
+                                    <span class="badge px-3 py-2 rounded-0 {% if usuario.perfil.rol == 'proveedor' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {{ usuario.perfil.rol }}
+                                    </span>
+                                </td>
+                                <td>{{ usuario.date_joined|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
