@@ -7,6 +7,9 @@ from django.db.models import UniqueConstraint
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
+    imagen = models.ImageField(upload_to='categorias/', blank=True, null=True, verbose_name="Imagen representativa")
+    # Campo para contar visitas (opcional)
+    visitas = models.IntegerField(default=0)
 
     def __str__(self):
         return self.nombre

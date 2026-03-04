@@ -1,0 +1,161 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_title %}Editar Oferta{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-light p-3 rounded-0">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_ofertas' %}">Ofertas</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_detalle_oferta' oferta.id %}">{{ oferta.titulo|truncatechars:30 }}</a></li>
+        <li class="breadcrumb-item active">Editar</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Tarjeta de edición -->
+        <div class="card border-0 shadow-sm rounded-0">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-pencil-square me-2" style="color: var(--primary);"></i>
+                    Editar Oferta: {{ oferta.titulo }}
+                </h5>
+            </div>
+            <div class="card-body p-5">
+                <!-- Errores del formulario -->
+                {% if form.errors %}
+                <div class="alert alert-danger rounded-0 mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Por favor corrige los siguientes errores:</strong>
+                    <ul class="mt-2 mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Título -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Título de la oferta <span class="text-danger">*</span></label>
+                        <input type="text" name="titulo" class="form-control rounded-0" value="{{ form.titulo.value|default:oferta.titulo }}" required>
+                        <small class="text-muted">Máximo 150 caracteres</small>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Descripción <span class="text-danger">*</span></label>
+                        <textarea name="descripcion" class="form-control rounded-0" rows="6" required>{{ form.descripcion.value|default:oferta.descripcion }}</textarea>
+                    </div>
+
+                    <!-- Precios -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Precio original <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white rounded-0 border-end-0">$</span>
+                                <input type="text" name="precio_original" class="form-control rounded-0 border-start-0" 
+                                       value="{{ form.precio_original.value|default:oferta.precio_original|floatformat:0 }}" 
+                                       placeholder="2299900" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Precio con descuento <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white rounded-0 border-end-0">$</span>
+                                <input type="text" name="precio_descuento" class="form-control rounded-0 border-start-0" 
+                                       value="{{ form.precio_descuento.value|default:oferta.precio_descuento|floatformat:0 }}" 
+                                       placeholder="1149900" required>
+                            </div>
+                        </div>
+                        <small class="text-muted mt-2">Ingresa los precios sin puntos (ej: 2299900)</small>
+                    </div>
+
+                    <!-- Categorías -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Categorías <span class="text-danger">*</span></label>
+                        <div class="row g-3">
+                            {% for categoria in form.categorias.field.queryset %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input type="checkbox" name="categorias" value="{{ categoria.id }}" 
+                                           class="form-check-input" id="cat{{ categoria.id }}"
+                                           {% if categoria.id in form.categorias.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="cat{{ categoria.id }}">
+                                        {{ categoria.nombre }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Imagen actual -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Imagen actual</label>
+                        <div class="bg-light p-4 text-center">
+                            {% if oferta.imagen %}
+                                <img src="{{ oferta.imagen.url }}" class="img-fluid mb-3" style="max-height: 200px;">
+                                <div class="form-check">
+                                    <input type="checkbox" name="imagen-clear" id="imagen-clear" class="form-check-input">
+                                    <label for="imagen-clear" class="form-check-label text-danger">Eliminar imagen actual</label>
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No hay imagen actual</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Nueva imagen -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nueva imagen (opcional)</label>
+                        <input type="file" name="imagen" class="form-control rounded-0" accept="image/*">
+                        <small class="text-muted">Formatos: JPG, PNG, GIF. Máximo 2MB</small>
+                    </div>
+
+                    <!-- Enlace externo -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Enlace externo</label>
+                        <input type="url" name="enlace_externo" class="form-control rounded-0" 
+                               value="{{ form.enlace_externo.value|default:oferta.enlace_externo }}" 
+                               placeholder="https://ejemplo.com/producto">
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Estado</label>
+                        <select name="estado" class="form-select rounded-0">
+                            <option value="pendiente" {% if oferta.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="activa" {% if oferta.estado == 'activa' %}selected{% endif %}>Activa</option>
+                            <option value="rechazada" {% if oferta.estado == 'rechazada' %}selected{% endif %}>Rechazada</option>
+                        </select>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-end gap-3">
+                        <a href="{% url 'admin_detalle_oferta' oferta.id %}" class="btn btn-outline-dark rounded-0 px-5 py-3">
+                            <i class="bi bi-x-lg me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn rounded-0 px-5 py-3" style="background-color: var(--primary); color: white;">
+                            <i class="bi bi-check-circle me-2"></i>Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -2,30 +2,39 @@
 {% load static %}
 
 {% block admin_title %}Gestión de Usuarios{% endblock %}
+{% block admin_subtitle %}Administra todos los usuarios del sistema{% endblock %}
 
 {% block admin_content %}
-<div class="card border-0 shadow-sm rounded-0">
-    <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
-        <h5 class="fw-bold mb-0">
-            <i class="bi bi-people me-2" style="color: var(--primary);"></i>
-            Lista de Usuarios
-        </h5>
-        <div class="d-flex gap-2">
-            <!-- Filtros -->
-            <div class="btn-group">
-                <a href="{% url 'admin_usuarios' %}" class="btn btn-sm btn-outline-dark rounded-0 {% if not rol_actual %}active{% endif %}">Todos</a>
-                <a href="?rol=consumidor" class="btn btn-sm btn-outline-dark rounded-0 {% if rol_actual == 'consumidor' %}active{% endif %}">Consumidores</a>
-                <a href="?rol=proveedor" class="btn btn-sm btn-outline-dark rounded-0 {% if rol_actual == 'proveedor' %}active{% endif %}">Proveedores</a>
+<!-- Filtros y búsqueda -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <form method="GET" class="d-flex">
+                    <input type="text" name="buscar" class="form-control rounded-0 me-2" placeholder="Buscar usuario por nombre o email..." value="{{ request.GET.buscar }}">
+                    <button type="submit" class="btn btn-outline-dark rounded-0">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
             </div>
-            <!-- Buscador -->
-            <form class="d-flex" method="GET">
-                <input class="form-control form-control-sm me-2 rounded-0" type="search" name="buscar" placeholder="Buscar usuario..." value="{{ request.GET.buscar }}">
-                <button class="btn btn-sm btn-outline-dark rounded-0" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
-            </form>
+            <div class="col-md-4">
+                <select name="rol" class="form-select rounded-0" onchange="window.location.href=this.value">
+                    <option value="?">Todos los roles</option>
+                    <option value="?rol=consumidor" {% if rol_actual == 'consumidor' %}selected{% endif %}>Consumidores</option>
+                    <option value="?rol=proveedor" {% if rol_actual == 'proveedor' %}selected{% endif %}>Proveedores</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="badge bg-dark rounded-0 px-3 py-2">
+                    <i class="bi bi-people me-1"></i> Total: {{ usuarios.paginator.count }}
+                </span>
+            </div>
         </div>
     </div>
+</div>
+
+<!-- Lista de usuarios -->
+<div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -44,11 +53,11 @@
                     {% for usuario in usuarios %}
                     <tr>
                         <td class="p-4">
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center gap-2">
                                 {% if usuario.perfil.foto %}
-                                    <img src="{{ usuario.perfil.foto.url }}" class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;">
+                                    <img src="{{ usuario.perfil.foto.url }}" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
                                 {% else %}
-                                    <i class="bi bi-person-circle fs-3 me-3" style="color: var(--primary);"></i>
+                                    <i class="bi bi-person-circle fs-3" style="color: var(--primary);"></i>
                                 {% endif %}
                                 <div>
                                     <h6 class="fw-bold mb-0">{{ usuario.username }}</h6>
@@ -60,6 +69,7 @@
                         <td>
                             <span class="badge px-3 py-2 rounded-0 
                                 {% if usuario.perfil.rol == 'proveedor' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                <i class="bi {% if usuario.perfil.rol == 'proveedor' %}bi-shop{% else %}bi-person{% endif %} me-1"></i>
                                 {{ usuario.perfil.rol }}
                             </span>
                         </td>
@@ -85,9 +95,9 @@
                         <td class="text-end">
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-dark rounded-0 dropdown-toggle" data-bs-toggle="dropdown">
-                                    Acciones
+                                    <i class="bi bi-gear me-1"></i> Acciones
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
                                     <!-- Cambiar rol -->
                                     <li>
                                         <form method="post" action="{% url 'cambiar_rol_usuario' usuario.id %}">
@@ -100,24 +110,37 @@
                                         </form>
                                     </li>
                                     
-                                    <!-- 👇 BOTÓN DE VERIFICAR (solo para proveedores no verificados) -->
+                                    <!-- Verificar proveedor -->
                                     {% if usuario.perfil.rol == 'proveedor' and not usuario.perfil.verificado %}
                                     <li>
                                         <form method="post" action="{% url 'verificar_proveedor' usuario.id %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="dropdown-item" style="color: #28a745;">
+                                            <button type="submit" class="dropdown-item text-success">
                                                 <i class="bi bi-patch-check me-2"></i> Marcar como verificado
                                             </button>
                                         </form>
                                     </li>
                                     {% endif %}
                                     
+                                    <li><hr class="dropdown-divider"></li>
+                                    
+                                    <!-- Ver detalles - CORREGIDO -->
                                     <li>
-                                        <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                                        <a href="{% url 'admin_detalle_usuario' usuario.id %}" class="dropdown-item">
                                             <i class="bi bi-eye me-2"></i> Ver detalles
                                         </a>
                                     </li>
+                                    
+                                    <!-- Editar usuario -->
+                                    <li>
+                                        <a href="{% url 'admin_editar_usuario' usuario.id %}" class="dropdown-item">
+                                            <i class="bi bi-pencil me-2"></i> Editar usuario
+                                        </a>
+                                    </li>
+                                    
                                     <li><hr class="dropdown-divider"></li>
+                                    
+                                    <!-- Eliminar usuario -->
                                     <li>
                                         <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#eliminarUsuarioModal{{ usuario.id }}">
                                             <i class="bi bi-trash me-2"></i> Eliminar usuario
@@ -169,7 +192,10 @@
                     <tr>
                         <td colspan="7" class="text-center p-5">
                             <i class="bi bi-people fs-1 text-muted d-block mb-3"></i>
-                            <p class="text-muted mb-0">No hay usuarios registrados</p>
+                            <h5 class="text-muted">No hay usuarios registrados</h5>
+                            {% if request.GET.buscar %}
+                                <p class="text-muted">No se encontraron resultados para "{{ request.GET.buscar }}"</p>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -177,31 +203,46 @@
             </table>
         </div>
     </div>
-    
-    <!-- Paginación -->
+
+    <!-- PAGINACIÓN -->
     {% if usuarios.has_other_pages %}
     <div class="card-footer bg-white p-4 border-0">
-        <nav>
-            <ul class="pagination justify-content-center mb-0">
-                {% if usuarios.has_previous %}
-                <li class="page-item">
-                    <a class="page-link rounded-0" href="?page={{ usuarios.previous_page_number }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">Anterior</a>
-                </li>
-                {% endif %}
-                
-                {% for i in usuarios.paginator.page_range %}
-                <li class="page-item {% if usuarios.number == i %}active{% endif %}">
-                    <a class="page-link rounded-0" href="?page={{ i }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">{{ i }}</a>
-                </li>
-                {% endfor %}
-                
-                {% if usuarios.has_next %}
-                <li class="page-item">
-                    <a class="page-link rounded-0" href="?page={{ usuarios.next_page_number }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">Siguiente</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="text-muted small mb-0">
+                Mostrando {{ usuarios.start_index }} - {{ usuarios.end_index }} de {{ usuarios.paginator.count }} usuarios
+            </p>
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if usuarios.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link rounded-0" href="?page={{ usuarios.previous_page_number }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in usuarios.paginator.page_range %}
+                        {% if usuarios.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link rounded-0" style="background-color: var(--primary); border-color: var(--primary);">{{ i }}</span>
+                            </li>
+                        {% elif i > usuarios.number|add:'-3' and i < usuarios.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link rounded-0" href="?page={{ i }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if usuarios.has_next %}
+                    <li class="page-item">
+                        <a class="page-link rounded-0" href="?page={{ usuarios.next_page_number }}{% if rol_actual %}&rol={{ rol_actual }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
     </div>
     {% endif %}
 </div>

@@ -1,0 +1,248 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_title %}Detalle de Usuario{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-light p-3 rounded-0">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_usuarios' %}">Usuarios</a></li>
+        <li class="breadcrumb-item active">{{ usuario.username }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Columna izquierda: Información del usuario -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-body text-center p-5">
+                <!-- Foto de perfil -->
+                {% if perfil.foto %}
+                    <img src="{{ perfil.foto.url }}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 4px solid var(--primary);">
+                {% else %}
+                    <div class="d-inline-block p-4 rounded-circle bg-light mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 80px; color: var(--gray);"></i>
+                    </div>
+                {% endif %}
+                
+                <!-- Nombre -->
+                <h4 class="fw-bold mb-2">{{ perfil.nombre_completo|default:usuario.username }}</h4>
+                <p class="text-muted mb-3">@{{ usuario.username }}</p>
+                
+                <!-- Badges -->
+                <div class="mb-3">
+                    <span class="badge px-3 py-2 rounded-0 me-1 
+                        {% if perfil.rol == 'proveedor' %}bg-primary{% else %}bg-secondary{% endif %}">
+                        {{ perfil.rol|title }}
+                    </span>
+                    {% if perfil.verificado %}
+                        <span class="badge bg-success rounded-0 px-3 py-2">
+                            <i class="bi bi-patch-check-fill me-1"></i> Verificado
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Estado de la cuenta -->
+                <div class="mb-3">
+                    {% if usuario.is_active %}
+                        <span class="badge bg-success rounded-0 px-3 py-2">Activo</span>
+                    {% else %}
+                        <span class="badge bg-danger rounded-0 px-3 py-2">Inactivo</span>
+                    {% endif %}
+                    
+                    {% if usuario.is_staff %}
+                        <span class="badge bg-dark rounded-0 px-3 py-2">Staff</span>
+                    {% endif %}
+                    
+                    {% if usuario.is_superuser %}
+                        <span class="badge bg-warning text-dark rounded-0 px-3 py-2">Superuser</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Fecha de registro -->
+                <p class="text-muted small">
+                    <i class="bi bi-calendar me-2"></i> Miembro desde {{ usuario.date_joined|date:"d/m/Y" }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="d-grid gap-2 mb-4">
+            <a href="{% url 'admin_editar_usuario' usuario.id %}" class="btn btn-outline-primary rounded-0 py-3">
+                <i class="bi bi-pencil me-2"></i> Editar usuario
+            </a>
+            <button type="button" class="btn btn-outline-danger rounded-0 py-3" data-bs-toggle="modal" data-bs-target="#eliminarModal">
+                <i class="bi bi-trash me-2"></i> Eliminar usuario
+            </button>
+            <a href="{% url 'admin_usuarios' %}" class="btn btn-outline-dark rounded-0 py-3">
+                <i class="bi bi-arrow-left me-2"></i> Volver al listado
+            </a>
+        </div>
+    </div>
+
+    <!-- Columna derecha: Información detallada -->
+    <div class="col-lg-8">
+        <!-- Información personal -->
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-person me-2" style="color: var(--primary);"></i>
+                    Información personal
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-sm-4">
+                        <p class="fw-bold mb-1">Nombre completo:</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <p>{{ perfil.nombre_completo|default:"No especificado" }}</p>
+                    </div>
+                    
+                    <div class="col-sm-4">
+                        <p class="fw-bold mb-1">Email:</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <p>{{ usuario.email }}</p>
+                    </div>
+                    
+                    <div class="col-sm-4">
+                        <p class="fw-bold mb-1">Teléfono:</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <p>{{ perfil.telefono|default:"No especificado" }}</p>
+                    </div>
+                    
+                    <div class="col-sm-4">
+                        <p class="fw-bold mb-1">Dirección:</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <p>{{ perfil.direccion|default:"No especificada" }}</p>
+                    </div>
+                    
+                    <div class="col-sm-4">
+                        <p class="fw-bold mb-1">Descripción:</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <p>{{ perfil.descripcion|default:"Sin descripción" }}</p>
+                    </div>
+                    
+                    {% if perfil.sitio_web %}
+                    <div class="col-sm-4">
+                        <p class="fw-bold mb-1">Sitio web:</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <a href="{{ perfil.sitio_web }}" target="_blank">{{ perfil.sitio_web }}</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-bar-chart me-2" style="color: var(--primary);"></i>
+                    Estadísticas
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    {% if perfil.rol == 'proveedor' %}
+                    <div class="col-md-4">
+                        <div class="border p-3 text-center">
+                            <h3 class="fw-bold" style="color: var(--primary);">{{ total_ofertas }}</h3>
+                            <p class="text-muted mb-0">Total ofertas</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border p-3 text-center">
+                            <h3 class="fw-bold" style="color: var(--primary);">{{ ofertas_activas }}</h3>
+                            <p class="text-muted mb-0">Ofertas activas</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-4">
+                        <div class="border p-3 text-center">
+                            <h3 class="fw-bold" style="color: var(--primary);">{{ total_comentarios }}</h3>
+                            <p class="text-muted mb-0">Comentarios</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border p-3 text-center">
+                            <h3 class="fw-bold" style="color: var(--primary);">{{ total_favoritos }}</h3>
+                            <p class="text-muted mb-0">Favoritos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimas actividades -->
+        <div class="card border-0 shadow-sm rounded-0">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-clock-history me-2" style="color: var(--primary);"></i>
+                    Últimas actividades
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <ul class="list-unstyled">
+                    <li class="mb-3 pb-2 border-bottom">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        Usuario creado el {{ usuario.date_joined|date:"d/m/Y H:i" }}
+                    </li>
+                    <li class="mb-3 pb-2 border-bottom">
+                        <i class="bi bi-pencil text-primary me-2"></i>
+                        Último acceso: {{ usuario.last_login|date:"d/m/Y H:i"|default:"Nunca" }}
+                    </li>
+                    {% if perfil.rol == 'proveedor' %}
+                    <li class="mb-3 pb-2 border-bottom">
+                        <i class="bi bi-tags text-warning me-2"></i>
+                        Ha creado {{ total_ofertas }} ofertas
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="eliminarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de eliminar al usuario <strong>"{{ usuario.username }}"</strong>?</p>
+                <div class="alert alert-danger rounded-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Esta acción eliminará:</strong>
+                    <ul class="mt-2 mb-0">
+                        <li>Su perfil</li>
+                        {% if perfil.rol == 'proveedor' %}
+                        <li>Todas sus ofertas</li>
+                        {% endif %}
+                        <li>Todos sus comentarios</li>
+                        <li>Todos sus favoritos</li>
+                        <li>Todas sus calificaciones</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-dark rounded-0" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'eliminar_usuario' usuario.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger rounded-0">Eliminar permanentemente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

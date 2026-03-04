@@ -1,0 +1,281 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_title %}Gestión de Ofertas{% endblock %}
+
+{% block admin_content %}
+<!-- Estadísticas rápidas -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 bg-primary text-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold mb-1">Total ofertas</h6>
+                        <h3 class="fw-bold mb-0">{{ total_ofertas }}</h3>
+                    </div>
+                    <i class="bi bi-tags fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 bg-warning text-dark">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold mb-1">Pendientes</h6>
+                        <h3 class="fw-bold mb-0">{{ ofertas_pendientes }}</h3>
+                    </div>
+                    <i class="bi bi-hourglass-split fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 bg-success text-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold mb-1">Activas</h6>
+                        <h3 class="fw-bold mb-0">{{ ofertas_activas }}</h3>
+                    </div>
+                    <i class="bi bi-check-circle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-0 bg-danger text-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold mb-1">Rechazadas</h6>
+                        <h3 class="fw-bold mb-0">{{ ofertas_rechazadas }}</h3>
+                    </div>
+                    <i class="bi bi-x-circle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros y búsqueda -->
+<div class="card border-0 shadow-sm rounded-0 mb-4">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <form method="GET" class="d-flex">
+                    <input type="text" name="buscar" class="form-control rounded-0 me-2" placeholder="Buscar oferta..." value="{{ request.GET.buscar }}">
+                    <button type="submit" class="btn btn-outline-dark rounded-0">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-3">
+                <select name="estado" class="form-select rounded-0" onchange="window.location.href=this.value">
+                    <option value="?">Todos los estados</option>
+                    <option value="?estado=pendiente" {% if estado_actual == 'pendiente' %}selected{% endif %}>Pendientes</option>
+                    <option value="?estado=activa" {% if estado_actual == 'activa' %}selected{% endif %}>Activas</option>
+                    <option value="?estado=rechazada" {% if estado_actual == 'rechazada' %}selected{% endif %}>Rechazadas</option>
+                </select>
+            </div>
+            <div class="col-md-5 text-end">
+                <a href="{% url 'admin_ofertas_pendientes' %}" class="btn btn-warning rounded-0 me-2">
+                    <i class="bi bi-hourglass-split me-2"></i>Ver pendientes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de ofertas -->
+<div class="card border-0 shadow-sm rounded-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="p-4">ID</th>
+                        <th>Imagen</th>
+                        <th>Título</th>
+                        <th>Proveedor</th>
+                        <th>Precios</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for oferta in ofertas %}
+                    <tr>
+                        <td class="p-4">#{{ oferta.id }}</td>
+                        <td>
+                            {% if oferta.imagen %}
+                                <img src="{{ oferta.imagen.url }}" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-image text-secondary"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <h6 class="fw-bold mb-0">{{ oferta.titulo|truncatechars:40 }}</h6>
+                            <small class="text-muted">{{ oferta.categorias.all|join:", "|truncatechars:20 }}</small>
+                        </td>
+                        <td>{{ oferta.proveedor.user.username }}</td>
+                        <td>
+                            <span class="fw-bold text-success">${{ oferta.precio_descuento|floatformat:0 }}</span>
+                            <br>
+                            <small class="text-muted text-decoration-line-through">${{ oferta.precio_original|floatformat:0 }}</small>
+                        </td>
+                        <td>
+                            <span class="badge px-3 py-2 rounded-0 
+                                {% if oferta.estado == 'activa' %}bg-success
+                                {% elif oferta.estado == 'pendiente' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ oferta.estado }}
+                            </span>
+                        </td>
+                        <td>{{ oferta.fecha_creacion|date:"d/m/Y" }}</td>
+                        <td class="text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-dark rounded-0 dropdown-toggle" data-bs-toggle="dropdown">
+                                    Acciones
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'admin_detalle_oferta' oferta.id %}">
+                                            <i class="bi bi-eye me-2"></i> Ver detalle
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'admin_editar_oferta' oferta.id %}">
+                                            <i class="bi bi-pencil me-2"></i> Editar
+                                        </a>
+                                    </li>
+                                    {% if oferta.estado == 'pendiente' %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-success" href="{% url 'admin_aprobar_oferta' oferta.id %}">
+                                            <i class="bi bi-check-circle me-2"></i> Aprobar
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#rechazarModal{{ oferta.id }}">
+                                            <i class="bi bi-x-circle me-2"></i> Rechazar
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#eliminarModal{{ oferta.id }}">
+                                            <i class="bi bi-trash me-2"></i> Eliminar
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Modal Rechazar -->
+                            {% if oferta.estado == 'pendiente' %}
+                            <div class="modal fade" id="rechazarModal{{ oferta.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-0">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Rechazar oferta</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="post" action="{% url 'admin_rechazar_oferta' oferta.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <p>¿Estás seguro de rechazar la oferta <strong>"{{ oferta.titulo }}"</strong>?</p>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Motivo del rechazo (opcional)</label>
+                                                    <textarea name="motivo" class="form-control rounded-0" rows="3" placeholder="Indica el motivo..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-dark rounded-0" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-danger rounded-0">Rechazar oferta</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Modal Eliminar -->
+                            <div class="modal fade" id="eliminarModal{{ oferta.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-0">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmar eliminación</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>¿Estás seguro de eliminar la oferta <strong>"{{ oferta.titulo }}"</strong>?</p>
+                                            <p class="text-danger small">Esta acción no se puede deshacer.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-dark rounded-0" data-bs-dismiss="modal">Cancelar</button>
+                                            <form method="post" action="{% url 'admin_eliminar_oferta' oferta.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger rounded-0">Eliminar</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center p-5">
+                            <i class="bi bi-tags fs-1 text-muted d-block mb-3"></i>
+                            <p class="text-muted mb-0">No hay ofertas registradas</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if ofertas.has_other_pages %}
+    <div class="card-footer bg-white p-4 border-0">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                {% if ofertas.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-0" href="?page={{ ofertas.previous_page_number }}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for i in ofertas.paginator.page_range %}
+                    {% if ofertas.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link rounded-0" style="background-color: var(--primary); border-color: var(--primary);">{{ i }}</span>
+                        </li>
+                    {% elif i > ofertas.number|add:'-3' and i < ofertas.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link rounded-0" href="?page={{ i }}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">{{ i }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if ofertas.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-0" href="?page={{ ofertas.next_page_number }}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

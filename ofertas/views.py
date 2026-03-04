@@ -300,10 +300,15 @@ def home(request):
     # Ofertas destacadas (pueden ser las más recientes o las que tienen más descuento)
     ofertas_destacadas = Oferta.objects.filter(estado='activa').order_by('-fecha_creacion')[:3]
     
-    # Categorías con conteo de ofertas
+    # Categorías con conteo de ofertas (para el navbar)
     categorias = Categoria.objects.annotate(
         total_ofertas=Count('oferta')
     ).filter(total_ofertas__gt=0)[:4]
+    
+    # 👇 NUEVO: Categorías populares (las 5 con más ofertas)
+    categorias_populares = Categoria.objects.annotate(
+        total_ofertas=Count('oferta')
+    ).filter(total_ofertas__gt=0).order_by('-total_ofertas')[:5]
     
     # Estadísticas
     total_ofertas = Oferta.objects.filter(estado='activa').count()
@@ -313,6 +318,7 @@ def home(request):
         'ofertas': ofertas,
         'ofertas_destacadas': ofertas_destacadas,
         'categorias': categorias,
+        'categorias_populares': categorias_populares,  # 👈 NUEVO
         'total_ofertas': total_ofertas,
         'total_proveedores': total_proveedores,
     }

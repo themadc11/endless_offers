@@ -1,0 +1,205 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_title %}Editar Usuario{% endblock %}
+{% block admin_subtitle %}Modifica los datos del usuario{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-light p-3 rounded-0">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_usuarios' %}">Usuarios</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_detalle_usuario' usuario.id %}">{{ usuario.username }}</a></li>
+        <li class="breadcrumb-item active">Editar</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Tarjeta de edición -->
+        <div class="card border-0 shadow-sm rounded-0">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-pencil-square me-2" style="color: var(--primary);"></i>
+                    Editar Usuario: {{ usuario.username }}
+                </h5>
+            </div>
+            <div class="card-body p-5">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- SECCIÓN: INFORMACIÓN BÁSICA -->
+                    <h6 class="fw-bold mb-3" style="color: var(--primary);">Información básica</h6>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nombre de usuario</label>
+                            <input type="text" class="form-control rounded-0" value="{{ usuario.username }}" readonly disabled>
+                            <small class="text-muted">El nombre de usuario no se puede cambiar</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control rounded-0" value="{{ usuario.email }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nombre</label>
+                            <input type="text" name="first_name" class="form-control rounded-0" value="{{ usuario.first_name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Apellido</label>
+                            <input type="text" name="last_name" class="form-control rounded-0" value="{{ usuario.last_name }}">
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: PERFIL -->
+                    <h6 class="fw-bold mb-3 mt-5" style="color: var(--primary);">Información de perfil</h6>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nombre para mostrar</label>
+                        <input type="text" name="nombre_completo" class="form-control rounded-0" value="{{ usuario.perfil.nombre_completo|default:'' }}">
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control rounded-0" value="{{ usuario.perfil.telefono|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Dirección</label>
+                            <input type="text" name="direccion" class="form-control rounded-0" value="{{ usuario.perfil.direccion|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion" class="form-control rounded-0" rows="4">{{ usuario.perfil.descripcion|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Foto actual -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Foto de perfil actual</label>
+                        <div class="bg-light p-4 text-center">
+                            {% if usuario.perfil.foto %}
+                                <img src="{{ usuario.perfil.foto.url }}" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                                <div class="form-check">
+                                    <input type="checkbox" name="foto-clear" id="foto-clear" class="form-check-input">
+                                    <label for="foto-clear" class="form-check-label text-danger">Eliminar foto actual</label>
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No hay foto de perfil</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Nueva foto -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nueva foto (opcional)</label>
+                        <input type="file" name="foto" class="form-control rounded-0" accept="image/*">
+                    </div>
+
+                    <!-- Sitio web (solo para proveedores) -->
+                    {% if usuario.perfil.rol == 'proveedor' %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Sitio web oficial</label>
+                        <input type="url" name="sitio_web" class="form-control rounded-0" value="{{ usuario.perfil.sitio_web|default:'' }}">
+                    </div>
+                    {% endif %}
+
+                    <!-- SECCIÓN: ROLES Y PERMISOS -->
+                    <h6 class="fw-bold mb-3 mt-5" style="color: var(--primary);">Roles y permisos</h6>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Rol</label>
+                            <select name="rol" class="form-select rounded-0">
+                                <option value="consumidor" {% if usuario.perfil.rol == 'consumidor' %}selected{% endif %}>Consumidor</option>
+                                <option value="proveedor" {% if usuario.perfil.rol == 'proveedor' %}selected{% endif %}>Proveedor</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Verificado</label>
+                            <div class="form-check mt-2">
+                                <input type="checkbox" name="verificado" class="form-check-input" id="verificado" {% if usuario.perfil.verificado %}checked{% endif %}>
+                                <label class="form-check-label" for="verificado">Marcar como proveedor verificado</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Estado de cuenta</label>
+                            <div class="form-check mt-2">
+                                <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {% if usuario.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">Cuenta activa</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permisos de staff (solo para admins) -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_staff" class="form-check-input" id="is_staff" {% if usuario.is_staff %}checked{% endif %}>
+                                <label class="form-check-label" for="is_staff">
+                                    <strong>Acceso al panel administrativo</strong>
+                                    <br>
+                                    <small class="text-muted">Permite al usuario acceder al panel de administración</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_superuser" class="form-check-input" id="is_superuser" {% if usuario.is_superuser %}checked{% endif %}>
+                                <label class="form-check-label" for="is_superuser">
+                                    <strong>Superusuario</strong>
+                                    <br>
+                                    <small class="text-muted">Tiene todos los permisos sin restricciones</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-end gap-3">
+                        <a href="{% url 'admin_detalle_usuario' usuario.id %}" class="btn btn-outline-dark rounded-0 px-5 py-3">
+                            <i class="bi bi-x-lg me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn rounded-0 px-5 py-3" style="background-color: var(--primary); color: white;">
+                            <i class="bi bi-check-circle me-2"></i>Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: CAMBIAR CONTRASEÑA - VERSIÓN PROFESIONAL CORREGIDA -->
+        <div class="card border-0 shadow-sm rounded-0 mt-4">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-key me-2" style="color: var(--primary);"></i>
+                    Cambiar contraseña
+                </h5>
+            </div>
+            <div class="card-body p-5">
+                <div class="alert alert-info rounded-0 d-flex align-items-start gap-3">
+                    <i class="bi bi-info-circle-fill fs-3 flex-shrink-0" style="color: var(--primary);"></i>
+                    <div>
+                        <p class="mb-2 fw-bold">¿Necesitas restablecer la contraseña?</p>
+                        <p class="mb-3 text-muted">El usuario puede restablecer su contraseña desde la página de inicio con la opción "¿Olvidaste tu contraseña?".</p>
+                        <div class="d-flex gap-3">
+                            <a href="{% url 'admin:auth_user_change' usuario.id %}" target="_blank" class="btn btn-outline-primary rounded-0">
+                                <i class="bi bi-box-arrow-up-right me-2"></i>Ir al admin de Django
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary rounded-0" onclick="navigator.clipboard.writeText('{{ usuario.email }}'); alert('Email copiado!');">
+                                <i class="bi bi-files me-2"></i>Copiar email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
