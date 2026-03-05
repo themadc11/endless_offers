@@ -84,8 +84,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'endless_offers',        # Nombre de tu base de datos
-        'USER': 'root',                   # Usuario por defecto de XAMPP/WAMP
-        'PASSWORD': '',                    # Contraseña vacía (por defecto)
+        'USER': 'root',                   # Usuario por defecto
+        'PASSWORD': '123456789',                    # ← IMPORTANTE: Déjalo vacío SI no tienes contraseña
         'HOST': '127.0.0.1',               # Host local
         'PORT': '3306',                     # Puerto de MySQL
         'OPTIONS': {
@@ -94,7 +94,6 @@ DATABASES = {
         },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

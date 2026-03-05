@@ -18,19 +18,20 @@ urlpatterns = [
     path('ofertas/', include('ofertas.urls')),
     path('usuarios/', include('usuarios.urls')),
     
-    path('accounts/', include('django.contrib.auth.urls')),
-
-    # Redirigir accounts/login a tu login
+    # 👇 PRIMERO: Redirigir accounts/login a tu login (específico)
     path('accounts/login/', RedirectView.as_view(url='/usuarios/login/', permanent=True)),
+    
+    # 👇 DESPUÉS: Incluir el resto de URLs de auth (password_change, etc.)
+    path('accounts/', include('django.contrib.auth.urls')),
     
     # Proveedores
     path('proveedores/', ofertas_views.lista_proveedores, name='lista_proveedores'),
     path('proveedor/<str:username>/', ofertas_views.perfil_proveedor, name='perfil_proveedor'),
     
-    # 👇 CORREGIDO: apuntan a usuarios/
+    # Páginas estáticas
     path('terminos/', TemplateView.as_view(template_name='usuarios/terminos.html'), name='terminos'),
-    path('acerca-de/', TemplateView.as_view(template_name='usuarios/acerca_de.html'), name='acerca_de'),
-
+    path('acerca-de/', TemplateView.as_view(template_name='usuarios/acerca_de.html'), name='acerca-de'),
+    
     path('notificaciones/', include('notificaciones.urls')),
 ]
 

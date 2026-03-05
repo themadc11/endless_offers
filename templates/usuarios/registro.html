@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
@@ -22,7 +23,7 @@
             background: #f5f5f5;
             padding: 20px;
         }
-        
+
         /* CASITA */
         .home-button {
             position: fixed;
@@ -37,34 +38,34 @@
             justify-content: center;
             color: #8C2B32;
             font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             z-index: 1000;
             text-decoration: none;
             border: 1px solid rgba(140, 43, 50, 0.1);
         }
-        
+
         .home-button:hover {
             background: #8C2B32;
             color: white;
             transform: translateY(-2px);
         }
-        
+
         .container-custom {
             width: 100%;
-            max-width: 1000px;  /* Reducido de 1100px */
-            height: 600px;       /* Reducido de 650px */
+            max-width: 1000px;
+            height: 600px;
             display: flex;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
-        
+
         /* Columna izquierda - IMAGEN */
         .image-section {
             flex: 1.2;
             background: linear-gradient(135deg, rgba(140, 43, 50, 0.9) 0%, rgba(93, 92, 49, 0.9) 100%),
-                        url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+                url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -73,27 +74,27 @@
             padding: 30px;
             color: white;
         }
-        
+
         .image-content {
             text-align: center;
             width: 100%;
         }
-        
+
         .image-content h1 {
-            font-size: 3rem;  /* Reducido de 3.5rem */
+            font-size: 3rem;
             font-weight: 800;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .image-content p {
-            font-size: 1.1rem;  /* Reducido de 1.3rem */
+            font-size: 1.1rem;
             opacity: 0.95;
             max-width: 350px;
             margin: 0 auto;
             line-height: 1.4;
         }
-        
+
         /* Columna derecha - FORMULARIO */
         .form-section {
             flex: 0.8;
@@ -101,288 +102,288 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;  /* Reducido padding */
+            padding: 20px;
         }
-        
+
         .form-container {
             width: 100%;
-            max-width: 350px;  /* Reducido de 380px */
+            max-width: 350px;
         }
-        
-        /* SIN TÍTULO DE BIENVENIDA */
-        
+
         /* GRID DE 2 COLUMNAS */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;  /* Reducido de 15px */
-            margin-bottom: 12px;  /* Reducido de 15px */
+            gap: 12px;
+            margin-bottom: 12px;
         }
-        
+
         .form-group {
-            margin-bottom: 12px;  /* Reducido de 15px */
+            margin-bottom: 12px;
         }
-        
+
         .form-label {
             display: block;
-            margin-bottom: 4px;  /* Reducido de 5px */
+            margin-bottom: 4px;
             color: #333;
-            font-size: 0.8rem;  /* Reducido de 0.85rem */
+            font-size: 0.8rem;
             font-weight: 600;
         }
-        
+
         .input-group {
             position: relative;
         }
-        
+
         .input-group i {
             position: absolute;
-            left: 10px;  /* Reducido de 12px */
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             color: #8C2B32;
-            font-size: 0.95rem;  /* Reducido de 1rem */
+            font-size: 0.95rem;
         }
-        
+
         .form-control {
             width: 100%;
-            padding: 10px 10px 10px 35px;  /* Reducido padding */
+            padding: 10px 10px 10px 35px;
             border: 1.5px solid #e0e0e0;
-            border-radius: 8px;  /* Reducido de 10px */
-            font-size: 0.85rem;  /* Reducido de 0.9rem */
+            border-radius: 8px;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
         }
-        
+
         .form-control:focus {
             outline: none;
             border-color: #8C2B32;
             box-shadow: 0 0 0 3px rgba(140, 43, 50, 0.1);
         }
-        
+
         .helptext {
-            font-size: 0.65rem;  /* Reducido de 0.7rem */
+            font-size: 0.65rem;
             color: #999;
-            margin-top: 3px;  /* Reducido de 4px */
+            margin-top: 3px;
         }
-        
+
         /* Tooltip de requisitos */
         .password-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 4px;  /* Reducido de 5px */
+            margin-bottom: 4px;
         }
-        
+
         .help-icon {
             color: #8C2B32;
-            font-size: 1.1rem;  /* Reducido de 1.2rem */
+            font-size: 1.1rem;
             cursor: pointer;
             position: relative;
         }
-        
+
         .help-icon:hover .tooltip-box {
             display: block;
         }
-        
+
         .tooltip-box {
             display: none;
             position: absolute;
-            top: 25px;  /* Reducido de 30px */
+            top: 25px;
             right: 0;
             background: white;
             border: 1px solid #e0e0e0;
-            border-radius: 8px;  /* Reducido de 10px */
-            padding: 10px;  /* Reducido de 12px */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            width: 180px;  /* Reducido de 200px */
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 180px;
             z-index: 100;
         }
-        
+
         .tooltip-box h4 {
-            font-size: 0.8rem;  /* Reducido de 0.85rem */
+            font-size: 0.8rem;
             color: #5D5C31;
-            margin-bottom: 6px;  /* Reducido de 8px */
+            margin-bottom: 6px;
             font-weight: 600;
         }
-        
+
         .tooltip-box ul {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-        
+
         .tooltip-box li {
-            font-size: 0.7rem;  /* Reducido de 0.75rem */
+            font-size: 0.7rem;
             color: #555;
-            margin-bottom: 4px;  /* Reducido de 5px */
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 4px;  /* Reducido de 5px */
+            gap: 4px;
         }
-        
+
         .terms-checkbox {
-            margin: 12px 0;  /* Reducido de 15px */
+            margin: 12px 0;
         }
-        
+
         .checkbox-label {
             display: flex;
             align-items: center;
-            gap: 6px;  /* Reducido de 8px */
+            gap: 6px;
             cursor: pointer;
-            font-size: 0.8rem;  /* Reducido de 0.85rem */
+            font-size: 0.8rem;
         }
-        
+
         .checkbox-label input[type="checkbox"] {
-            width: 14px;  /* Reducido de 16px */
-            height: 14px;  /* Reducido de 16px */
+            width: 14px;
+            height: 14px;
             accent-color: #8C2B32;
         }
-        
+
         .checkbox-text a {
             color: #8C2B32;
             text-decoration: none;
             font-weight: 600;
         }
-        
+
         .btn-register {
             width: 100%;
-            padding: 12px;  /* Reducido de 14px */
+            padding: 12px;
             background: #8C2B32;
             border: none;
-            border-radius: 8px;  /* Reducido de 10px */
+            border-radius: 8px;
             color: white;
-            font-size: 0.9rem;  /* Reducido de 1rem */
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 12px;  /* Reducido de 15px */
+            margin-bottom: 12px;
         }
-        
+
         .btn-register:hover {
             background: #5D5C31;
             transform: translateY(-2px);
         }
-        
+
         /* SEPARADOR */
         .separator {
             display: flex;
             align-items: center;
             text-align: center;
-            margin: 12px 0;  /* Reducido de 15px */
+            margin: 12px 0;
             color: #999;
-            font-size: 0.75rem;  /* Reducido de 0.8rem */
+            font-size: 0.75rem;
         }
-        
+
         .separator::before,
         .separator::after {
             content: '';
             flex: 1;
             border-bottom: 1px solid #e0e0e0;
         }
-        
+
         .separator span {
-            padding: 0 8px;  /* Reducido de 10px */
+            padding: 0 8px;
         }
-        
+
         /* BOTONES SOCIALES */
         .social-buttons {
             display: flex;
-            gap: 8px;  /* Reducido de 10px */
-            margin-bottom: 12px;  /* Reducido de 15px */
+            gap: 8px;
+            margin-bottom: 12px;
         }
-        
+
         .btn-social {
             flex: 1;
-            padding: 10px;  /* Reducido de 12px */
+            padding: 10px;
             border: 1.5px solid #e0e0e0;
-            border-radius: 8px;  /* Reducido de 10px */
+            border-radius: 8px;
             background: white;
             color: #555;
-            font-size: 0.8rem;  /* Reducido de 0.9rem */
+            font-size: 0.8rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;  /* Reducido de 8px */
+            gap: 6px;
             text-decoration: none;
         }
-        
+
         .btn-social:hover {
             background: #f8f8f8;
             border-color: #8C2B32;
         }
-        
+
         .btn-gmail {
             color: #DB4437;
         }
-        
+
         .btn-gmail i {
             color: #DB4437;
         }
-        
+
         .btn-facebook {
             color: #1877f2;
         }
-        
+
         .btn-facebook i {
             color: #1877f2;
         }
-        
+
         .login-prompt {
             text-align: center;
-            margin: 12px 0 8px;  /* Reducido */
-            font-size: 0.8rem;  /* Reducido de 0.9rem */
+            margin: 12px 0 8px;
+            font-size: 0.8rem;
         }
-        
+
         .login-prompt a {
             color: #8C2B32;
             text-decoration: none;
             font-weight: 600;
         }
-        
+
         /* TÉRMINOS Y COPYRIGHT */
         .terms-link {
             text-align: center;
-            margin-bottom: 5px;  /* Reducido de 8px */
+            margin-bottom: 5px;
         }
-        
+
         .terms-link a {
             color: #5D5C31;
             text-decoration: none;
-            font-size: 0.75rem;  /* Reducido de 0.8rem */
+            font-size: 0.75rem;
         }
-        
+
         .terms-link a:hover {
             text-decoration: underline;
         }
-        
+
         .copyright {
             text-align: center;
             color: #999;
-            font-size: 0.65rem;  /* Reducido de 0.7rem */
+            font-size: 0.65rem;
         }
-        
+
         /* Mensajes */
         .messages {
-            margin-bottom: 12px;  /* Reducido de 15px */
+            margin-bottom: 12px;
         }
-        
+
         .alert {
-            padding: 8px 12px;  /* Reducido */
-            border-radius: 6px;  /* Reducido */
-            font-size: 0.8rem;  /* Reducido */
-            margin-bottom: 8px;  /* Reducido */
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
         }
+
     </style>
 </head>
+
 <body>
     <!-- CASITA -->
     <a href="/" class="home-button" title="Volver al inicio">
         <i class="bi bi-house-door-fill"></i>
     </a>
-    
+
     <div class="container-custom">
         <!-- Columna izquierda - TÍTULO -->
         <div class="image-section">
@@ -391,42 +392,44 @@
                 <p>Crea tu cuenta en EndlessOffers</p>
             </div>
         </div>
-        
-        <!-- Columna derecha - FORMULARIO SIN TÍTULO -->
+
+        <!-- Columna derecha - FORMULARIO -->
         <div class="form-section">
             <div class="form-container">
                 {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                        {% endfor %}
-                    </div>
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
                 {% endif %}
-                
+
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <!-- FILA DE 2 COLUMNAS: Usuario y Email -->
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Usuario</label>
                             <div class="input-group">
                                 <i class="bi bi-person-fill"></i>
-                                <input type="text" name="username" class="form-control" placeholder="usuario123" required>
+                                <input type="text" name="username" class="form-control" placeholder="usuario123"
+                                    required>
                             </div>
                             <div class="helptext">Máx. 150</div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label">Email</label>
                             <div class="input-group">
                                 <i class="bi bi-envelope-fill"></i>
-                                <input type="email" name="email" class="form-control" placeholder="tu@email.com" required>
+                                <input type="email" name="email" class="form-control" placeholder="tu@email.com"
+                                    required>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Contraseña con ícono de ayuda -->
+
+                    <!-- Contraseña con ícono de ayuda y toggle DENTRO del input -->
                     <div class="form-group">
                         <div class="password-header">
                             <label class="form-label">Contraseña</label>
@@ -444,20 +447,38 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <i class="bi bi-lock-fill"></i>
-                            <input type="password" name="password1" class="form-control" placeholder="********" required>
+                            <span class="input-group-text bg-white rounded-0 border-end-0">
+                                <i class="bi bi-lock-fill" style="color: var(--primary);"></i>
+                            </span>
+                            <input type="password" name="password1" id="password1"
+                                class="form-control rounded-0 border-start-0 border-end-0" placeholder="********"
+                                required>
+                            <button type="button"
+                                class="input-group-text bg-white rounded-0 border-start-0 toggle-password"
+                                style="cursor: pointer;" data-target="password1">
+                                <i class="bi bi-eye" style="color: var(--primary);"></i>
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- Confirmar contraseña -->
+
+                    <!-- Confirmar contraseña con toggle DENTRO del input -->
                     <div class="form-group">
                         <label class="form-label">Confirmar contraseña</label>
                         <div class="input-group">
-                            <i class="bi bi-lock-fill"></i>
-                            <input type="password" name="password2" class="form-control" placeholder="********" required>
+                            <span class="input-group-text bg-white rounded-0 border-end-0">
+                                <i class="bi bi-lock-fill" style="color: var(--primary);"></i>
+                            </span>
+                            <input type="password" name="password2" id="password2"
+                                class="form-control rounded-0 border-start-0 border-end-0" placeholder="********"
+                                required>
+                            <button type="button"
+                                class="input-group-text bg-white rounded-0 border-start-0 toggle-password"
+                                style="cursor: pointer;" data-target="password2">
+                                <i class="bi bi-eye" style="color: var(--primary);"></i>
+                            </button>
                         </div>
                     </div>
-                    
+
                     <!-- Términos -->
                     <div class="terms-checkbox">
                         <label class="checkbox-label">
@@ -467,15 +488,15 @@
                             </span>
                         </label>
                     </div>
-                    
+
                     <button type="submit" class="btn-register">Crear cuenta</button>
                 </form>
-                
+
                 <!-- Separador y botones sociales -->
                 <div class="separator">
                     <span>O continúa con</span>
                 </div>
-                
+
                 <div class="social-buttons">
                     <a href="#" class="btn-social btn-gmail" onclick="alert('Demo: Google Login')">
                         <i class="bi bi-google"></i> Gmail
@@ -484,11 +505,11 @@
                         <i class="bi bi-facebook"></i> Facebook
                     </a>
                 </div>
-                
+
                 <div class="login-prompt">
                     <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
                 </div>
-                
+
                 <!-- Términos y copyright -->
                 <div class="terms-link">
                     <a href="{% url 'terminos' %}">Términos y condiciones</a>
@@ -499,5 +520,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Script para mostrar/ocultar contraseña -->
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function () {
+                let targetId = this.getAttribute('data-target');
+                let input = document.getElementById(targetId);
+                let icon = this.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>
