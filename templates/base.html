@@ -330,7 +330,7 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Categorías -->
+                <!-- Categorías (AHORA DINÁMICAS) -->
                 <ul class="navbar-nav me-3">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
@@ -342,6 +342,20 @@
                                     <i class="bi bi-grid"></i> Todas las ofertas
                                 </a>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <!-- 👇 CATEGORÍAS DINÁMICAS (SOLO CON OFERTAS) -->
+                            {% for categoria in categorias_menu %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'lista_ofertas' %}?categoria={{ categoria.id }}">
+                                    <i class="bi bi-tag"></i> {{ categoria.nombre }}
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li>
+                                <span class="dropdown-item text-muted">No hay categorías</span>
+                            </li>
+                            {% endfor %}
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -359,62 +373,64 @@
                     </button>
                 </form>
 
-                <!-- Notificaciones -->
-                <li class="nav-item me-5"> <!-- 👈 Reducido el margen -->
-                    <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell fs-5"></i>
-                        {% if notificaciones_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            style="font-size: 0.6rem;">
-                            {{ notificaciones_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
-                        <li class="px-3 py-2 bg-light">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0 fw-bold">Notificaciones</h6>
-                                {% if notificaciones_count > 0 %}
-                                <a href="{% url 'marcar_todas_leidas' %}" class="small text-decoration-none">Marcar
-                                    todas</a>
-                                {% endif %}
-                            </div>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider my-0">
-                        </li>
-                        {% for notif in notificaciones %}
-                        <li>
-                            <a href="{% url 'marcar_notificacion_leido' notif.id %}" class="dropdown-item py-3">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0 me-2">
-                                        <i class="bi bi-bell" style="color: var(--primary);"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="small text-muted mb-0">{{ notif.mensaje|truncatechars:50 }}</p>
-                                        <small class="text-muted">{{ notif.fecha_creacion|timesince }}</small>
-                                    </div>
+                <!-- Notificaciones y Usuario -->
+                <ul class="navbar-nav ms-auto">
+                    <!-- Notificaciones -->
+                    <li class="nav-item me-2">
+                        <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell fs-5"></i>
+                            {% if notificaciones_count > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 0.6rem;">
+                                {{ notificaciones_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <li class="px-3 py-2 bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 fw-bold">Notificaciones</h6>
+                                    {% if notificaciones_count > 0 %}
+                                    <a href="{% url 'marcar_todas_leidas' %}" class="small text-decoration-none">Marcar
+                                        todas</a>
+                                    {% endif %}
                                 </div>
-                            </a>
-                        </li>
-                        {% empty %}
-                        <li class="px-3 py-4 text-center text-muted">
-                            <i class="bi bi-bell-slash d-block mb-2" style="font-size: 2rem;"></i>
-                            <small>No hay notificaciones</small>
-                        </li>
-                        {% endfor %}
-                        <li>
-                            <hr class="dropdown-divider my-0">
-                        </li>
-                        <li>
-                            <a href="{% url 'lista_notificaciones' %}" class="dropdown-item text-center py-2">
-                                Ver todas las notificaciones
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <!-- Usuario -->
-                <ul class="navbar-nav ">
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider my-0">
+                            </li>
+                            {% for notif in notificaciones %}
+                            <li>
+                                <a href="{% url 'marcar_notificacion_leido' notif.id %}" class="dropdown-item py-3">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 me-2">
+                                            <i class="bi bi-bell" style="color: var(--primary);"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <p class="small text-muted mb-0">{{ notif.mensaje|truncatechars:50 }}</p>
+                                            <small class="text-muted">{{ notif.fecha_creacion|timesince }}</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li class="px-3 py-4 text-center text-muted">
+                                <i class="bi bi-bell-slash d-block mb-2" style="font-size: 2rem;"></i>
+                                <small>No hay notificaciones</small>
+                            </li>
+                            {% endfor %}
+                            <li>
+                                <hr class="dropdown-divider my-0">
+                            </li>
+                            <li>
+                                <a href="{% url 'lista_notificaciones' %}" class="dropdown-item text-center py-2">
+                                    Ver todas las notificaciones
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Usuario -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
                             {% if user.is_authenticated %}
@@ -512,7 +528,7 @@
     <footer class="text-center text-md-start">
         <div class="container py-5">
             <div class="row g-4">
-                <!-- Columna 1: Descripción (más ancha) -->
+                <!-- Columna 1: Descripción -->
                 <div class="col-md-6 col-lg-5">
                     <h5 class="fw-bold text-white mb-3">ENDLESSOFFERS</h5>
                     <p class="small text-white-50"
@@ -522,7 +538,7 @@
                     </p>
                 </div>
 
-                <!-- Columna 2: Enlaces (centrada) -->
+                <!-- Columna 2: Enlaces -->
                 <div class="col-md-3 col-lg-3 offset-lg-1">
                     <h6 class="fw-bold text-white mb-3">Enlaces</h6>
                     <ul class="list-unstyled">
@@ -535,7 +551,7 @@
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="{% url 'home' %}" class="text-decoration-none"
+                            <a href="{% url 'acerca-de' %}" class="text-decoration-none"
                                 style="color: rgba(255,255,255,0.7); transition: color 0.3s;"
                                 onmouseover="this.style.color='white'"
                                 onmouseout="this.style.color='rgba(255,255,255,0.7)'">
@@ -562,10 +578,8 @@
                 </div>
             </div>
 
-            <!-- Línea divisoria más elegante -->
             <hr class="my-4" style="border-color: rgba(255,255,255,0.1); opacity: 0.5;">
 
-            <!-- Copyright -->
             <div class="row">
                 <div class="col-12 text-center">
                     <p class="mb-0 small" style="color: rgba(255,255,255,0.5);">

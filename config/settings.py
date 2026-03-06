@@ -68,6 +68,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'ofertas.context_processors.favoritos_count',
                 'notificaciones.context_processors.notificaciones',
+                'ofertas.context_processors.categorias_menu',
             ],
         },
     },

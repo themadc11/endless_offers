@@ -5,6 +5,7 @@ from django.urls import path, include
 from ofertas import views as ofertas_views
 from django.views.generic import TemplateView
 from django.views.generic import RedirectView
+from django.contrib.auth import views as auth_views  # 👈 Agrega esto
 
 # PERSONALIZACIÓN DEL ADMIN
 admin.site.site_header = "Panel Administrativo - EndlessOffers"
@@ -18,11 +19,14 @@ urlpatterns = [
     path('ofertas/', include('ofertas.urls')),
     path('usuarios/', include('usuarios.urls')),
     
-    # 👇 PRIMERO: Redirigir accounts/login a tu login (específico)
+    # Redirigir accounts/login a tu login
     path('accounts/login/', RedirectView.as_view(url='/usuarios/login/', permanent=True)),
     
-    # 👇 DESPUÉS: Incluir el resto de URLs de auth (password_change, etc.)
-    path('accounts/', include('django.contrib.auth.urls')),
+    # 👇 URLs de auth PERSONALIZADAS (solo las que necesitas)
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('accounts/password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
+    path('accounts/password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
+    # 👇 NO incluyas password_reset aquí
     
     # Proveedores
     path('proveedores/', ofertas_views.lista_proveedores, name='lista_proveedores'),
