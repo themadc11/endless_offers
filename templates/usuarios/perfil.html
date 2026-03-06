@@ -32,17 +32,24 @@
                             <h4 class="fw-bold mb-2">{{ perfil.nombre_completo|default:request.user.username }}</h4>
                             
                             {% if perfil.rol == "proveedor" %}
-                                <!-- Badge de proveedor con verificación real -->
+                                <!-- 👇 NUEVO SISTEMA DE NIVELES DE VERIFICACIÓN -->
                                 <div class="mb-3">
-                                    {% if perfil.verificado %}
-                                        <span class="badge px-3 py-2" style="background-color: #28a745; color: white; font-size: 0.9rem; border-radius: 0;">
-                                            <i class="bi bi-patch-check-fill me-1"></i> Proveedor verificado
+                                    {% if perfil.nivel_verificacion == 'avanzado' %}
+                                        <span class="badge bg-success rounded-0 px-3 py-2">
+                                            <i class="bi bi-patch-check-fill me-1"></i> Proveedor Verificado (Avanzado)
+                                        </span>
+                                    {% elif perfil.nivel_verificacion == 'intermedio' %}
+                                        <span class="badge bg-primary rounded-0 px-3 py-2">
+                                            <i class="bi bi-star-fill me-1"></i> Proveedor Confiable (Intermedio)
                                         </span>
                                     {% else %}
-                                        <span class="badge px-3 py-2" style="background-color: var(--primary); color: white; font-size: 0.9rem; border-radius: 0;">
-                                            <i class="bi bi-shield me-1"></i> Proveedor
+                                        <span class="badge bg-secondary rounded-0 px-3 py-2">
+                                            <i class="bi bi-person me-1"></i> Proveedor (Básico)
                                         </span>
-                                        <small class="d-block text-muted mt-1">En proceso de verificación</small>
+                                    {% endif %}
+                                    
+                                    {% if perfil.verificado and not perfil.nivel_verificacion %}
+                                        <small class="d-block text-muted mt-1">Cuenta verificada</small>
                                     {% endif %}
                                 </div>
                                 
@@ -103,6 +110,26 @@
                                     <p class="mb-1">{{ request.user.email }}</p>
                                 </div>
                             </div>
+                            
+                            {% if perfil.rol == "proveedor" and perfil.nivel_verificacion %}
+                            <!-- 👇 NUEVA LÍNEA PARA MOSTRAR EL NIVEL EN DETALLE -->
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <p class="fw-bold mb-1">Nivel:</p>
+                                </div>
+                                <div class="col-sm-8">
+                                    <p class="mb-1">
+                                        {% if perfil.nivel_verificacion == 'avanzado' %}
+                                            <span class="text-success">⭐ Avanzado (Máxima confianza)</span>
+                                        {% elif perfil.nivel_verificacion == 'intermedio' %}
+                                            <span class="text-primary">⭐ Intermedio (Confiable)</span>
+                                        {% else %}
+                                            <span class="text-secondary">⭐ Básico (Verificado)</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            {% endif %}
                             
                             <div class="row mb-3">
                                 <div class="col-sm-4">

@@ -294,18 +294,18 @@ def dashboard_proveedor(request):
 def home(request):
     """Página de inicio con ofertas reales de la base de datos"""
     
-    # Ofertas activas ordenadas por fecha
-    ofertas = Oferta.objects.filter(estado='activa').order_by('-fecha_creacion')[:8]
+    # Ofertas activas ordenadas por fecha - AHORA TRAEMOS 12 OFERTAS
+    ofertas = Oferta.objects.filter(estado='activa').order_by('-fecha_creacion')[:12]  # 👈 Cambiado de 8 a 12
     
-    # Ofertas destacadas (pueden ser las más recientes o las que tienen más descuento)
+    # Ofertas destacadas (para el carrusel)
     ofertas_destacadas = Oferta.objects.filter(estado='activa').order_by('-fecha_creacion')[:3]
     
-    # Categorías con conteo de ofertas (para el navbar)
+    # Categorías con conteo de ofertas
     categorias = Categoria.objects.annotate(
         total_ofertas=Count('oferta')
     ).filter(total_ofertas__gt=0)[:4]
     
-    # 👇 NUEVO: Categorías populares (las 5 con más ofertas)
+    # Categorías populares (las 5 con más ofertas)
     categorias_populares = Categoria.objects.annotate(
         total_ofertas=Count('oferta')
     ).filter(total_ofertas__gt=0).order_by('-total_ofertas')[:5]
@@ -318,7 +318,7 @@ def home(request):
         'ofertas': ofertas,
         'ofertas_destacadas': ofertas_destacadas,
         'categorias': categorias,
-        'categorias_populares': categorias_populares,  # 👈 NUEVO
+        'categorias_populares': categorias_populares,
         'total_ofertas': total_ofertas,
         'total_proveedores': total_proveedores,
     }

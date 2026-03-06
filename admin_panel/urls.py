@@ -7,12 +7,16 @@ urlpatterns = [
     
     # ===== SOLICITUDES DE PROVEEDORES =====
     path('solicitudes/', views.solicitudes_proveedores, name='admin_solicitudes_proveedores'),
-    path('solicitudes/<int:solicitud_id>/<str:accion>/', views.procesar_solicitud_proveedor, name='procesar_solicitud_proveedor'),
+    # 👇 ESPECÍFICAS PRIMERO
+    path('solicitudes/<int:solicitud_id>/detalle/', views.detalle_solicitud, name='detalle_solicitud'),
     path('solicitudes/<int:solicitud_id>/eliminar/', views.eliminar_solicitud, name='eliminar_solicitud'),
+    # 👇 GENÉRICA AL FINAL (la que tiene <str:accion>)
+    path('solicitudes/<int:solicitud_id>/<str:accion>/', views.procesar_solicitud_proveedor, name='procesar_solicitud_proveedor'),
     
     # ===== OFERTAS =====
     path('ofertas/', views.lista_ofertas_admin, name='admin_ofertas'),
     path('ofertas/pendientes/', views.ofertas_pendientes, name='admin_ofertas_pendientes'),
+    # 👇 ESPECÍFICAS PRIMERO
     path('ofertas/<int:oferta_id>/', views.detalle_oferta_admin, name='admin_detalle_oferta'),
     path('ofertas/<int:oferta_id>/editar/', views.editar_oferta_admin, name='admin_editar_oferta'),
     path('ofertas/<int:oferta_id>/aprobar/', views.aprobar_oferta, name='admin_aprobar_oferta'),
@@ -21,6 +25,7 @@ urlpatterns = [
     
     # ===== USUARIOS =====
     path('usuarios/', views.lista_usuarios, name='admin_usuarios'),
+    # 👇 ESPECÍFICAS PRIMERO
     path('usuarios/<int:user_id>/', views.detalle_usuario, name='admin_detalle_usuario'),
     path('usuarios/<int:user_id>/editar/', views.editar_usuario, name='admin_editar_usuario'),
     path('usuarios/<int:user_id>/cambiar-rol/', views.cambiar_rol_usuario, name='cambiar_rol_usuario'),

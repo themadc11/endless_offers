@@ -1,0 +1,247 @@
+{% extends "admin_panel/base_admin.html" %}
+{% load static %}
+
+{% block admin_title %}Detalle de Solicitud{% endblock %}
+{% block admin_subtitle %}Información completa del proveedor{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-light p-3 rounded-0">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_solicitudes_proveedores' %}">Solicitudes</a></li>
+        <li class="breadcrumb-item active">{{ solicitud.usuario.username }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Tarjeta de información del usuario -->
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-person me-2" style="color: var(--primary);"></i>
+                    Información del solicitante
+                </h5>
+                <span class="badge px-3 py-2 rounded-0 
+                    {% if solicitud.estado == 'pendiente' %}bg-warning text-dark
+                    {% elif solicitud.estado == 'aprobada' %}bg-success
+                    {% else %}bg-danger{% endif %}">
+                    {{ solicitud.get_estado_display }}
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Usuario:</strong> {{ solicitud.usuario.username }}</p>
+                        <p><strong>Nombre completo:</strong> {{ solicitud.usuario.perfil.nombre_completo|default:"No especificado" }}</p>
+                        <p><strong>Email:</strong> {{ solicitud.usuario.email }}</p>
+                        <p><strong>Fecha solicitud:</strong> {{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Nivel solicitado:</strong> 
+                            <span class="badge {% if solicitud.nivel_solicitado == 'avanzado' %}bg-success{% elif solicitud.nivel_solicitado == 'intermedio' %}bg-primary{% else %}bg-secondary{% endif %} rounded-0">
+                                {{ solicitud.get_nivel_solicitado_display }}
+                            </span>
+                        </p>
+                        {% if solicitud.fecha_revision %}
+                        <p><strong>Fecha revisión:</strong> {{ solicitud.fecha_revision|date:"d/m/Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información BÁSICA -->
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-info-circle me-2" style="color: var(--primary);"></i>
+                    Información Básica
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <p><strong>Teléfono de contacto:</strong> {{ solicitud.telefono_contacto|default:"No especificado" }}</p>
+                <p><strong>Descripción del negocio:</strong></p>
+                <div class="bg-light p-3 rounded-0">
+                    {{ solicitud.descripcion_negocio|linebreaks }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Información INTERMEDIA (si existe) -->
+        {% if solicitud.sitio_web or solicitud.instagram or solicitud.facebook or solicitud.fotos_productos %}
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-star-fill me-2" style="color: var(--primary);"></i>
+                    Información Intermedia
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    {% if solicitud.sitio_web %}
+                    <div class="col-md-6 mb-3">
+                        <p class="fw-bold mb-1">Sitio web:</p>
+                        <a href="{{ solicitud.sitio_web }}" target="_blank">{{ solicitud.sitio_web }}</a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if solicitud.instagram %}
+                    <div class="col-md-6 mb-3">
+                        <p class="fw-bold mb-1">Instagram:</p>
+                        <p>{{ solicitud.instagram }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if solicitud.facebook %}
+                    <div class="col-md-6 mb-3">
+                        <p class="fw-bold mb-1">Facebook:</p>
+                        <p>{{ solicitud.facebook }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if solicitud.fotos_productos %}
+                    <div class="col-12 mb-3">
+                        <p class="fw-bold mb-2">Foto de productos:</p>
+                        <img src="{{ solicitud.fotos_productos.url }}" class="img-fluid rounded-0" style="max-height: 200px;">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Información AVANZADA (si existe) -->
+        {% if solicitud.experiencia or solicitud.documentos or solicitud.referencias %}
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-shield-check me-2" style="color: var(--primary);"></i>
+                    Información Avanzada
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                {% if solicitud.experiencia %}
+                <p class="fw-bold mb-1">Experiencia:</p>
+                <div class="bg-light p-3 rounded-0 mb-3">
+                    {{ solicitud.experiencia|linebreaks }}
+                </div>
+                {% endif %}
+                
+                {% if solicitud.referencias %}
+                <p class="fw-bold mb-1">Referencias:</p>
+                <div class="bg-light p-3 rounded-0 mb-3">
+                    {{ solicitud.referencias|linebreaks }}
+                </div>
+                {% endif %}
+                
+                {% if solicitud.documentos %}
+                <p class="fw-bold mb-1">Documentos:</p>
+                <a href="{{ solicitud.documentos.url }}" target="_blank" class="btn btn-outline-primary rounded-0">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Ver documento
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Notas del admin (si existen) -->
+        {% if solicitud.notas_admin %}
+        <div class="card border-0 shadow-sm rounded-0 mb-4">
+            <div class="card-header bg-white p-4 border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-chat me-2" style="color: var(--primary);"></i>
+                    Notas del administrador
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                {{ solicitud.notas_admin|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Acciones -->
+        <div class="d-flex justify-content-between gap-3">
+            <a href="{% url 'admin_solicitudes_proveedores' %}" class="btn btn-outline-dark rounded-0 px-5 py-3">
+                <i class="bi bi-arrow-left me-2"></i> Volver al listado
+            </a>
+            
+            {% if solicitud.estado == 'pendiente' %}
+            <div class="d-flex gap-3">
+                <!-- Botón para aprobar con selección de nivel -->
+                <button type="button" class="btn btn-success rounded-0 px-5 py-3" data-bs-toggle="modal" data-bs-target="#aprobarModal">
+                    <i class="bi bi-check-circle me-2"></i> Aprobar solicitud
+                </button>
+                
+                <!-- Botón para rechazar -->
+                <button type="button" class="btn btn-danger rounded-0 px-5 py-3" data-bs-toggle="modal" data-bs-target="#rechazarModal">
+                    <i class="bi bi-x-circle me-2"></i> Rechazar solicitud
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Aprobar -->
+{% if solicitud.estado == 'pendiente' %}
+<div class="modal fade" id="aprobarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0">
+            <div class="modal-header">
+                <h5 class="modal-title">Aprobar solicitud</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'procesar_solicitud_proveedor' solicitud.id 'aprobar' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>¿Estás seguro de aprobar la solicitud de <strong>{{ solicitud.usuario.username }}</strong>?</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nivel de verificación a asignar:</label>
+                        <select name="nivel_asignado" class="form-select rounded-0">
+                            <option value="basico" {% if solicitud.nivel_solicitado == 'basico' %}selected{% endif %}>Básico</option>
+                            <option value="intermedio" {% if solicitud.nivel_solicitado == 'intermedio' %}selected{% endif %}>Intermedio</option>
+                            <option value="avanzado" {% if solicitud.nivel_solicitado == 'avanzado' %}selected{% endif %}>Avanzado</option>
+                        </select>
+                        <small class="text-muted">Puedes cambiar el nivel si lo consideras necesario</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark rounded-0" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success rounded-0">Aprobar solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="rechazarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0">
+            <div class="modal-header">
+                <h5 class="modal-title">Rechazar solicitud</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'procesar_solicitud_proveedor' solicitud.id 'rechazar' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>¿Estás seguro de rechazar la solicitud de <strong>{{ solicitud.usuario.username }}</strong>?</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Motivo del rechazo (opcional):</label>
+                        <textarea name="motivo" class="form-control rounded-0" rows="3" placeholder="Indica el motivo..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark rounded-0" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger rounded-0">Rechazar solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

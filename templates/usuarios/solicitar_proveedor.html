@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Solicitar ser Proveedor - EndlessOffers{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-0">
+                <div class="card-body p-5">
+                    <h2 class="fw-bold mb-4" style="color: var(--primary);">
+                        <i class="bi bi-briefcase me-2"></i>Solicitar ser Proveedor
+                    </h2>
+                    
+                    <!-- EXPLICACIÓN DE NIVELES -->
+                    <div class="alert alert-info rounded-0 mb-4">
+                        <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-2"></i>Niveles de verificación:</h6>
+                        <ul class="mb-0 small">
+                            <li><strong>Básico:</strong> Solo necesitas teléfono y descripción (todos pueden aplicar)</li>
+                            <li><strong>Intermedio:</strong> Agrega redes sociales o sitio web (más confianza)</li>
+                            <li><strong>Avanzado:</strong> Sube documentos y experiencia (máxima confianza)</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- SECCIÓN 1: INFORMACIÓN BÁSICA (OBLIGATORIA) -->
+                        <div class="bg-light p-4 rounded-0 mb-4">
+                            <h5 class="fw-bold mb-3" style="color: var(--primary);">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                Información Básica (obligatoria)
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">¿Qué productos o servicios ofreces?</label>
+                                <textarea name="descripcion_negocio" class="form-control rounded-0" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Teléfono de contacto</label>
+                                <input type="text" name="telefono_contacto" class="form-control rounded-0" value="{{ user.perfil.telefono }}" required>
+                            </div>
+                        </div>
+                        
+                        <!-- SECCIÓN 2: INFORMACIÓN INTERMEDIA (OPCIONAL) -->
+                        <div class="bg-light p-4 rounded-0 mb-4">
+                            <h5 class="fw-bold mb-3" style="color: var(--primary);">
+                                <i class="bi bi-star-fill me-2"></i>
+                                Información adicional (opcional - te da nivel INTERMEDIO)
+                            </h5>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Sitio web</label>
+                                    <input type="url" name="sitio_web" class="form-control rounded-0" placeholder="https://tusitio.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Instagram</label>
+                                    <input type="text" name="instagram" class="form-control rounded-0" placeholder="@tuinstagram">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Facebook</label>
+                                <input type="text" name="facebook" class="form-control rounded-0" placeholder="facebook.com/tupagina">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Foto de tus productos</label>
+                                <input type="file" name="fotos_productos" class="form-control rounded-0" accept="image/*">
+                            </div>
+                        </div>
+                        
+                        <!-- SECCIÓN 3: INFORMACIÓN AVANZADA (OPCIONAL) -->
+                        <div class="bg-light p-4 rounded-0 mb-4">
+                            <h5 class="fw-bold mb-3" style="color: var(--primary);">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Verificación avanzada (opcional - nivel AVANZADO)
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Experiencia en ventas</label>
+                                <textarea name="experiencia" class="form-control rounded-0" rows="3" placeholder="¿Cuánto tiempo llevas vendiendo?"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Documentos de soporte</label>
+                                <input type="file" name="documentos" class="form-control rounded-0">
+                                <small class="text-muted">Cámara de comercio, RUT, certificaciones (si tienes)</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Referencias</label>
+                                <textarea name="referencias" class="form-control rounded-0" rows="2" placeholder="Personas que pueden dar referencia tuya"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- SELECCIÓN DE NIVEL -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">¿Qué nivel deseas?</label>
+                            <select name="nivel_solicitado" class="form-select rounded-0">
+                                <option value="basico">Básico - Solo quiero empezar</option>
+                                <option value="intermedio">Intermedio - Tengo presencia online</option>
+                                <option value="avanzado">Avanzado - Negocio establecido</option>
+                            </select>
+                        </div>
+                        
+                        <!-- TÉRMINOS -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="terminos" required>
+                                <label class="form-check-label" for="terminos">
+                                    Confirmo que la información es verídica
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{% url 'perfil' %}" class="btn btn-outline-dark rounded-0 px-5">Cancelar</a>
+                            <button type="submit" class="btn rounded-0 px-5" style="background-color: var(--primary); color: white;">
+                                Enviar solicitud
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

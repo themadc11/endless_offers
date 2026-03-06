@@ -38,14 +38,14 @@
                         </td>
                         <td>{{ oferta.fecha_creacion|date:"d/m/Y" }}</td>
                         <td class="text-end">
-                            <a href="{% url 'procesar_oferta' oferta.id 'aprobar' %}" 
-                               class="btn btn-sm btn-success rounded-0"
-                               onclick="return confirm('¿Aprobar esta oferta?')">
+                            <a href="{% url 'admin_aprobar_oferta' oferta.id %}"
+                                class="btn btn-sm btn-success rounded-0"
+                                onclick="return confirm('¿Aprobar esta oferta?')">
                                 <i class="bi bi-check-lg"></i> Aprobar
                             </a>
-                            <a href="{% url 'procesar_oferta' oferta.id 'rechazar' %}" 
-                               class="btn btn-sm btn-danger rounded-0"
-                               onclick="return confirm('¿Rechazar esta oferta?')">
+                            <a href="{% url 'admin_rechazar_oferta' oferta.id %}"
+                                class="btn btn-sm btn-danger rounded-0"
+                                onclick="return confirm('¿Rechazar esta oferta?')">
                                 <i class="bi bi-x-lg"></i> Rechazar
                             </a>
                         </td>

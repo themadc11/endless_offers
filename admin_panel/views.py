@@ -94,6 +94,10 @@ def solicitudes_proveedores(request):
     if estado:
         solicitudes = solicitudes.filter(estado=estado)
     
+    nivel = request.GET.get('nivel')
+    if nivel:
+        solicitudes = solicitudes.filter(nivel_solicitado=nivel)
+    
     # Contadores para el sidebar
     solicitudes_pendientes_count = SolicitudProveedor.objects.filter(estado='pendiente').count()
     ofertas_pendientes_count = Oferta.objects.filter(estado='pendiente').count()
@@ -101,6 +105,7 @@ def solicitudes_proveedores(request):
     context = {
         'solicitudes': solicitudes,
         'estado_actual': estado,
+        'nivel_actual': nivel,
         'now': timezone.now(),
         'solicitudes_pendientes_count': solicitudes_pendientes_count,
         'ofertas_pendientes_count': ofertas_pendientes_count,
@@ -109,25 +114,64 @@ def solicitudes_proveedores(request):
 
 
 @staff_member_required
+def detalle_solicitud(request, solicitud_id):
+    """Ver detalle completo de una solicitud de proveedor"""
+    solicitud = get_object_or_404(SolicitudProveedor, id=solicitud_id)
+    
+    context = {
+        'solicitud': solicitud,
+        'now': timezone.now(),
+    }
+    return render(request, 'admin_panel/detalle_solicitud.html', context)
+
+
+@staff_member_required
 def procesar_solicitud_proveedor(request, solicitud_id, accion):
-    """Aprobar o rechazar solicitud de proveedor"""
+    """Aprobar o rechazar solicitud de proveedor con asignación de nivel"""
     solicitud = get_object_or_404(SolicitudProveedor, id=solicitud_id)
     
     if accion == 'aprobar':
         solicitud.estado = 'aprobada'
+        solicitud.fecha_revision = timezone.now()
+        
+        # Obtener el nivel a asignar (puede venir del POST o usar el solicitado)
+        nivel_asignado = request.POST.get('nivel_asignado', solicitud.nivel_solicitado)
+        solicitud.nivel_asignado = nivel_asignado
         solicitud.save()
         
-        # Cambiar rol del usuario
+        # Cambiar rol del usuario y asignar nivel de verificación
         perfil = solicitud.usuario.perfil
         perfil.rol = 'proveedor'
-        perfil.verificado = True  # Marcar como verificado
+        perfil.nivel_verificacion = nivel_asignado
+        
+        # Por compatibilidad, también marcamos verificado como True
+        perfil.verificado = True
         perfil.save()
         
-        messages.success(request, f'✅ Solicitud de {solicitud.usuario.username} aprobada correctamente.')
+        # Actualizar perfil con la información de la solicitud
+        if solicitud.telefono_contacto:
+            perfil.telefono = solicitud.telefono_contacto
+        if solicitud.sitio_web:
+            perfil.sitio_web = solicitud.sitio_web
+        if solicitud.descripcion_negocio and not perfil.descripcion:
+            perfil.descripcion = solicitud.descripcion_negocio
+        perfil.save()
+        
+        nivel_display = dict(SolicitudProveedor.NIVELES).get(nivel_asignado, 'Básico')
+        messages.success(
+            request, 
+            f'✅ Solicitud de {solicitud.usuario.username} aprobada como {nivel_display}.'
+        )
         
     elif accion == 'rechazar':
         solicitud.estado = 'rechazada'
+        solicitud.fecha_revision = timezone.now()
+        
+        # Guardar motivo de rechazo si viene en el POST
+        motivo = request.POST.get('motivo', '')
+        solicitud.notas_admin = motivo
         solicitud.save()
+        
         messages.warning(request, f'⚠️ Solicitud de {solicitud.usuario.username} rechazada.')
     
     return redirect('admin_solicitudes_proveedores')
@@ -318,7 +362,6 @@ def rechazar_oferta(request, oferta_id):
         oferta.estado = 'rechazada'
         oferta.save()
         
-        # Opcional: guardar motivo o enviar notificación
         messages.warning(request, f'⚠️ Oferta "{oferta.titulo}" rechazada.')
     
     return redirect('admin_ofertas_pendientes')
@@ -426,6 +469,7 @@ def editar_usuario(request, user_id):
         usuario.perfil.descripcion = request.POST.get('descripcion', '')
         usuario.perfil.rol = request.POST.get('rol', usuario.perfil.rol)
         usuario.perfil.verificado = 'verificado' in request.POST
+        usuario.perfil.nivel_verificacion = request.POST.get('nivel_verificacion', 'basico')
         
         usuario.save()
         usuario.perfil.save()
@@ -463,7 +507,7 @@ def cambiar_rol_usuario(request, user_id):
 
 @staff_member_required
 def verificar_proveedor(request, user_id):
-    """Verificar a un proveedor manualmente"""
+    """Verificar a un proveedor manualmente (versión actualizada con niveles)"""
     if request.method == 'POST':
         user = get_object_or_404(User, id=user_id)
         
@@ -471,9 +515,13 @@ def verificar_proveedor(request, user_id):
             messages.warning(request, f'⚠️ {user.username} no es un proveedor.')
             return redirect('admin_usuarios')
         
+        nivel = request.POST.get('nivel_verificacion', 'basico')
+        user.perfil.nivel_verificacion = nivel
         user.perfil.verificado = True
         user.perfil.save()
-        messages.success(request, f'✅ {user.username} ahora es un proveedor verificado.')
+        
+        nivel_display = dict(Perfil.NIVELES).get(nivel, 'Básico')
+        messages.success(request, f'✅ {user.username} ahora es un proveedor {nivel_display}.')
     
     return redirect('admin_usuarios')
 

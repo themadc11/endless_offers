@@ -158,6 +158,7 @@ def solicitar_proveedor(request):
         messages.info(request, "ℹ️ Ya eres proveedor.")
         return redirect("perfil")
 
+    # Verificar solicitud pendiente
     solicitud_existente = SolicitudProveedor.objects.filter(
         usuario=request.user,
         estado='pendiente'
@@ -167,22 +168,27 @@ def solicitar_proveedor(request):
         messages.warning(request, "⏳ Ya tienes una solicitud pendiente.")
         return redirect("perfil")
 
-    solicitud_rechazada_reciente = SolicitudProveedor.objects.filter(
-        usuario=request.user,
-        estado='rechazada',
-        fecha_solicitud__gte=timezone.now() - timedelta(days=7)
-    ).exists()
-    
-    if solicitud_rechazada_reciente:
-        messages.warning(
-            request, 
-            "⏰ Tu solicitud fue rechazada recientemente. Puedes volver a intentarlo en 7 días."
+    if request.method == 'POST':
+        # Crear solicitud con toda la información
+        solicitud = SolicitudProveedor.objects.create(
+            usuario=request.user,
+            nivel_solicitado=request.POST.get('nivel_solicitado', 'basico'),
+            telefono_contacto=request.POST.get('telefono_contacto', ''),
+            descripcion_negocio=request.POST.get('descripcion_negocio', ''),
+            sitio_web=request.POST.get('sitio_web', ''),
+            instagram=request.POST.get('instagram', ''),
+            facebook=request.POST.get('facebook', ''),
+            fotos_productos=request.FILES.get('fotos_productos'),
+            experiencia=request.POST.get('experiencia', ''),
+            documentos=request.FILES.get('documentos'),
+            referencias=request.POST.get('referencias', ''),
+            estado='pendiente'
         )
+        
+        messages.success(request, "✅ Solicitud enviada correctamente. Revisaremos tu información.")
         return redirect("perfil")
-
-    SolicitudProveedor.objects.create(usuario=request.user)
-    messages.success(request, "✅ Solicitud enviada correctamente.")
-    return redirect("perfil")
+    
+    return render(request, "usuarios/solicitar_proveedor.html")
 
 
 # ==================== RECUPERACIÓN DE CONTRASEÑA ====================

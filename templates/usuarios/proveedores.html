@@ -25,15 +25,14 @@
         </div>
     </div>
 
-    <!-- Grid de proveedores (ESTILO CUADRÍCULA) -->
+    <!-- Grid de proveedores - TODAS LAS CARDS CON LA MISMA ALTURA -->
     <div class="row g-4">
         {% for proveedor in proveedores %}
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-0 h-100">
-                <div class="card-body p-4">
-                    <!-- Encabezado con foto y nombre -->
+            <div class="card border-0 shadow-sm rounded-0 h-100">  <!-- 👈 h-100 es clave -->
+                <div class="card-body p-4 d-flex flex-column">
+                    <!-- Encabezado con foto y nombre (SIEMPRE visible) -->
                     <div class="d-flex align-items-center mb-3">
-                        <!-- Foto o ícono -->
                         <div class="flex-shrink-0">
                             {% if proveedor.perfil.foto %}
                                 <img src="{{ proveedor.perfil.foto.url }}" class="rounded-circle" width="60" height="60" style="object-fit: cover;">
@@ -44,71 +43,84 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Nombre y tipo -->
                         <div class="flex-grow-1 ms-3">
-                            <h5 class="fw-bold mb-0">{{ proveedor.perfil.nombre_completo|default:proveedor.username }}</h5>
-                            <p class="text-muted small mb-0">
-                                <i class="bi bi-tag me-1" style="color: var(--primary);"></i>
+                            <h5 class="fw-bold mb-1">{{ proveedor.perfil.nombre_completo|default:proveedor.username }}</h5>
+                            <div>
                                 {% if proveedor.perfil.verificado %}
                                     <span class="badge bg-success rounded-0 me-1">Verificado</span>
                                 {% endif %}
                                 <span class="badge bg-primary rounded-0">Proveedor</span>
-                            </p>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Descripción -->
-                    <p class="text-muted small mb-3">
-                        {{ proveedor.perfil.descripcion|default:"Proveedor de productos y servicios de calidad."|truncatechars:80 }}
-                    </p>
+                    <!-- Descripción (altura fija) -->
+                    <div class="mb-3" style="min-height: 60px;">
+                        <p class="text-muted small mb-0">
+                            {{ proveedor.perfil.descripcion|default:"Proveedor de productos y servicios de calidad."|truncatechars:80 }}
+                        </p>
+                    </div>
                     
-                    <!-- Sitio web -->
+                    <!-- Sitio web (si existe) -->
                     {% if proveedor.perfil.sitio_web %}
-                    <div class="mb-3">
+                    <div class="mb-3" style="min-height: 24px;">
                         <a href="{{ proveedor.perfil.sitio_web }}" target="_blank" class="text-decoration-none small">
-                            <i class="bi bi-globe2 me-2" style="color: var(--primary);"></i>
+                            <i class="bi bi-globe2 me-1" style="color: var(--primary);"></i>
                             {{ proveedor.perfil.sitio_web|cut:"https://"|cut:"http://"|cut:"www." }}
                         </a>
                     </div>
+                    {% else %}
+                    <!-- Espacio vacío para mantener altura consistente -->
+                    <div class="mb-3" style="min-height: 24px;"></div>
                     {% endif %}
                     
-                    <!-- Estadísticas rápidas -->
-                    <div class="d-flex justify-content-between text-center mb-3">
-                        <div>
-                            <h6 class="fw-bold mb-0" style="color: var(--primary);">{{ proveedor.ofertas_activas|default:"0" }}</h6>
-                            <small class="text-muted">Ofertas</small>
+                    <!-- Estadísticas en grid uniforme -->
+                    <div class="row g-2 mb-3 text-center">
+                        <div class="col-4">
+                            <div class="border p-2">
+                                <div class="fw-bold" style="color: var(--primary);">{{ proveedor.ofertas_activas|default:"0" }}</div>
+                                <small class="text-muted">Ofertas</small>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="fw-bold mb-0" style="color: var(--primary);">
-                                {% if proveedor.reputacion %}{{ proveedor.reputacion }}{% else %}-{% endif %}
-                            </h6>
-                            <small class="text-muted">Reputación</small>
+                        <div class="col-4">
+                            <div class="border p-2">
+                                <div class="fw-bold" style="color: var(--primary);">
+                                    {% if proveedor.reputacion %}{{ proveedor.reputacion }}{% else %}-{% endif %}
+                                </div>
+                                <small class="text-muted">Reputación</small>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="fw-bold mb-0" style="color: var(--primary);">{{ proveedor.total_calificaciones|default:"0" }}</h6>
-                            <small class="text-muted">Reviews</small>
+                        <div class="col-4">
+                            <div class="border p-2">
+                                <div class="fw-bold" style="color: var(--primary);">{{ proveedor.total_calificaciones|default:"0" }}</div>
+                                <small class="text-muted">Reviews</small>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Estrellas de reputación -->
-                    {% if proveedor.reputacion %}
-                    <div class="text-warning small mb-3 text-center">
-                        {% for i in "12345"|make_list %}
-                            {% if forloop.counter <= proveedor.reputacion %}
-                                <i class="bi bi-star-fill"></i>
-                            {% elif forloop.counter <= proveedor.reputacion|add:0.5 %}
-                                <i class="bi bi-star-half"></i>
-                            {% else %}
-                                <i class="bi bi-star"></i>
-                            {% endif %}
-                        {% endfor %}
+                    <!-- Estrellas (altura fija) -->
+                    <div class="mb-3" style="min-height: 24px;">
+                        {% if proveedor.reputacion %}
+                        <div class="text-warning small">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= proveedor.reputacion %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% elif forloop.counter <= proveedor.reputacion|add:0.5 %}
+                                    <i class="bi bi-star-half"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                     
-                    <!-- Botón ver detalle -->
-                    <a href="{% url 'perfil_proveedor' proveedor.username %}" class="btn btn-outline-dark w-100 rounded-0">
-                        Ver detalle <i class="bi bi-arrow-right ms-2"></i>
-                    </a>
+                    <!-- Botón siempre al fondo -->
+                    <div class="mt-auto">
+                        <a href="{% url 'perfil_proveedor' proveedor.username %}" class="btn btn-outline-dark w-100 rounded-0">
+                            Ver detalle <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -123,7 +135,7 @@
         {% endfor %}
     </div>
 
-    <!-- Paginación -->
+    <!-- Paginación (si existe) -->
     {% if proveedores.has_other_pages %}
     <nav class="mt-5">
         <ul class="pagination justify-content-center">
@@ -134,9 +146,15 @@
             {% endif %}
             
             {% for i in proveedores.paginator.page_range %}
-            <li class="page-item {% if proveedores.number == i %}active{% endif %}">
-                <a class="page-link rounded-0" href="?page={{ i }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">{{ i }}</a>
-            </li>
+                {% if proveedores.number == i %}
+                    <li class="page-item active">
+                        <span class="page-link rounded-0" style="background-color: var(--primary); border-color: var(--primary);">{{ i }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link rounded-0" href="?page={{ i }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}">{{ i }}</a>
+                    </li>
+                {% endif %}
             {% endfor %}
             
             {% if proveedores.has_next %}
