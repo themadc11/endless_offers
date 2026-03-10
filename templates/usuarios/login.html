@@ -172,51 +172,70 @@
             font-weight: 600;
         }
 
+        /* GRUPO DE INPUT CORREGIDO */
         .input-group {
-            position: relative;
             display: flex;
-            align-items: center;
+            align-items: stretch;
+            width: 100%;
+            position: relative;
         }
 
-        .input-group i {
+        /* Contenedor para input con ícono */
+        .input-with-icon {
+            position: relative;
+            flex: 1;
+        }
+
+        .input-with-icon i {
             position: absolute;
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
             color: #8C2B32;
             font-size: 1rem;
-            z-index: 1;
+            z-index: 2;
         }
 
-        .form-control {
+        .input-with-icon .form-control {
             width: 100%;
             padding: 12px 12px 12px 40px;
             border: 1.5px solid #e0e0e0;
             border-radius: 10px 0 0 10px;
             font-size: 0.9rem;
             border-right: none;
+            height: 100%;
         }
 
-        .form-control:focus {
+        .input-with-icon .form-control:focus {
             outline: none;
             border-color: #8C2B32;
             box-shadow: 0 0 0 3px rgba(140, 43, 50, 0.1);
+            z-index: 1;
         }
 
-        /* 👇 ESTILO PARA EL BOTÓN DEL OJO */
+        /* BOTÓN DEL OJO CORREGIDO */
         .toggle-password {
             background: white;
             border: 1.5px solid #e0e0e0;
             border-left: none;
             border-radius: 0 10px 10px 0;
-            padding: 12px 15px;
+            padding: 0 15px;
             cursor: pointer;
             color: #8C2B32;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
 
         .toggle-password:hover {
             background: #f8f8f8;
+            border-color: #8C2B32;
+        }
+
+        .toggle-password i {
+            line-height: 1;
         }
 
         .form-options {
@@ -408,16 +427,20 @@
                     <div class="form-group">
                         <label class="form-label">Email o usuario</label>
                         <div class="input-group">
-                            <i class="bi bi-envelope-fill"></i>
-                            <input type="text" name="username" class="form-control" placeholder="tu@email.com" required>
+                            <div class="input-with-icon">
+                                <i class="bi bi-envelope-fill"></i>
+                                <input type="text" name="username" class="form-control" placeholder="tu@email.com" required>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Contraseña</label>
                         <div class="input-group">
-                            <i class="bi bi-lock-fill"></i>
-                            <input type="password" name="password" id="password" class="form-control" placeholder="********" required>
+                            <div class="input-with-icon">
+                                <i class="bi bi-lock-fill"></i>
+                                <input type="password" name="password" id="password" class="form-control" placeholder="********" required>
+                            </div>
                             <span class="toggle-password" onclick="togglePassword()">
                                 <i class="bi bi-eye" id="toggleIcon"></i>
                             </span>
@@ -426,9 +449,9 @@
 
                     <div class="form-options">
                         <label class="remember-me">
-                            <input type="checkbox" name="remember"> Recordar
+                            <input type="checkbox" name="remember"> Recordar sesión
                         </label>
-                        <a href="{% url 'password_reset' %}" class="forgot-link">¿Olvidaste?</a>
+                        <a href="{% url 'password_reset' %}" class="forgot-link">¿Olvidaste tu contraseña?</a>
                     </div>
 
                     <button type="submit" class="btn-login">Ingresar</button>
@@ -438,7 +461,6 @@
                     <span>O continúa con</span>
                 </div>
 
-                <!-- BOTONES SOCIALES (DEMO) -->
                 <div class="social-buttons">
                     <a href="#" class="btn-social btn-gmail" onclick="alert('Demo: Google Login - Funcionalidad en desarrollo')">
                         <i class="bi bi-google"></i> Gmail
@@ -457,14 +479,13 @@
                         <a href="{% url 'terminos' %}">Términos y condiciones</a>
                     </div>
                     <div class="copyright">
-                        © 2026 EndlessOffers
+                        © 2026 EndlessOffers. Todos los derechos reservados.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT PARA EL OJITO DE CONTRASEÑA -->
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
@@ -479,7 +500,18 @@
                 toggleIcon.classList.remove('bi-eye-slash');
                 toggleIcon.classList.add('bi-eye');
             }
+            
+            // Mantener el foco en el input después de hacer clic
+            passwordInput.focus();
         }
+
+        // También permitir cambiar con el teclado (Enter en el botón)
+        document.querySelector('.toggle-password').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                togglePassword();
+            }
+        });
     </script>
 </body>
 </html>
