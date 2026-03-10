@@ -54,7 +54,7 @@
         .container-custom {
             width: 100%;
             max-width: 1000px;
-            height: 600px;
+            min-height: 600px;
             display: flex;
             border-radius: 24px;
             overflow: hidden;
@@ -103,6 +103,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .form-container {
@@ -119,7 +120,7 @@
         }
 
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
 
         .form-label {
@@ -130,32 +131,68 @@
             font-weight: 600;
         }
 
-        .input-group {
-            position: relative;
+        /* Estilos para el grupo de contraseña con ojito */
+        .password-group {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
         }
 
-        .input-group i {
+        .input-with-icon {
+            position: relative;
+            flex: 1;
+        }
+
+        .input-with-icon i.input-icon {
             position: absolute;
-            left: 10px;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%);
             color: #8C2B32;
-            font-size: 0.95rem;
+            font-size: 1rem;
+            z-index: 2;
         }
 
-        .form-control {
+        .input-with-icon .form-control {
             width: 100%;
-            padding: 10px 10px 10px 35px;
+            padding: 10px 12px 10px 38px;
             border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 8px 0 0 8px;
             font-size: 0.85rem;
-            transition: all 0.3s ease;
+            border-right: none;
+            height: 100%;
         }
 
-        .form-control:focus {
+        .input-with-icon .form-control:focus {
             outline: none;
             border-color: #8C2B32;
             box-shadow: 0 0 0 3px rgba(140, 43, 50, 0.1);
+            z-index: 1;
+        }
+
+        /* BOTÓN DEL OJO CORREGIDO */
+        .toggle-password {
+            background: white;
+            border: 1.5px solid #e0e0e0;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            padding: 0 12px;
+            cursor: pointer;
+            color: #8C2B32;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .toggle-password:hover {
+            background: #f8f8f8;
+            border-color: #8C2B32;
+        }
+
+        .toggle-password i {
+            line-height: 1;
         }
 
         .helptext {
@@ -193,7 +230,7 @@
             border-radius: 8px;
             padding: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 180px;
+            width: 200px;
             z-index: 100;
         }
 
@@ -220,7 +257,7 @@
         }
 
         .terms-checkbox {
-            margin: 12px 0;
+            margin: 15px 0;
         }
 
         .checkbox-label {
@@ -375,6 +412,17 @@
             margin-bottom: 8px;
         }
 
+        .alert-error {
+            background: #fee9e9;
+            border: 1px solid #fbc4c4;
+            color: #b02a2a;
+        }
+
+        .alert-success {
+            background: #e6f4ea;
+            border: 1px solid #b8e0c2;
+            color: #1e7e34;
+        }
     </style>
 </head>
 
@@ -389,7 +437,7 @@
         <div class="image-section">
             <div class="image-content">
                 <h1>¡Bienvenido!</h1>
-                <p>Crea tu cuenta en EndlessOffers</p>
+                <p>Crea tu cuenta en EndlessOffers y descubre ofertas ilimitadas</p>
             </div>
         </div>
 
@@ -399,8 +447,18 @@
                 {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+                        <i class="bi bi-{% if message.tags == 'error' %}exclamation-triangle-fill{% else %}check-circle-fill{% endif %}"></i>
+                        {{ message }}
+                    </div>
                     {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Por favor corrige los errores en el formulario.
                 </div>
                 {% endif %}
 
@@ -411,25 +469,23 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Usuario</label>
-                            <div class="input-group">
-                                <i class="bi bi-person-fill"></i>
-                                <input type="text" name="username" class="form-control" placeholder="usuario123"
-                                    required>
+                            <div class="input-with-icon" style="width: 100%;">
+                                <i class="bi bi-person-fill input-icon"></i>
+                                <input type="text" name="username" class="form-control" placeholder="usuario123" style="border-radius: 8px;" required>
                             </div>
-                            <div class="helptext">Máx. 150</div>
+                            <div class="helptext">Máx. 150 caracteres</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Email</label>
-                            <div class="input-group">
-                                <i class="bi bi-envelope-fill"></i>
-                                <input type="email" name="email" class="form-control" placeholder="tu@email.com"
-                                    required>
+                            <div class="input-with-icon" style="width: 100%;">
+                                <i class="bi bi-envelope-fill input-icon"></i>
+                                <input type="email" name="email" class="form-control" placeholder="tu@email.com" style="border-radius: 8px;" required>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Contraseña con ícono de ayuda y toggle DENTRO del input -->
+                    <!-- Contraseña con ícono de ayuda y toggle CORREGIDO -->
                     <div class="form-group">
                         <div class="password-header">
                             <label class="form-label">Contraseña</label>
@@ -438,45 +494,51 @@
                                 <div class="tooltip-box">
                                     <h4>La contraseña debe tener:</h4>
                                     <ul>
-                                        <li><i class="bi bi-check-circle"></i> 8+ caracteres</li>
-                                        <li><i class="bi bi-check-circle"></i> 1+ número</li>
-                                        <li><i class="bi bi-check-circle"></i> 1+ letra</li>
-                                        <li><i class="bi bi-check-circle"></i> No común</li>
+                                        <li><i class="bi bi-check-circle-fill" style="color: #4CAF50; font-size: 0.6rem;"></i> 8+ caracteres</li>
+                                        <li><i class="bi bi-check-circle-fill" style="color: #4CAF50; font-size: 0.6rem;"></i> 1+ número</li>
+                                        <li><i class="bi bi-check-circle-fill" style="color: #4CAF50; font-size: 0.6rem;"></i> 1+ letra</li>
+                                        <li><i class="bi bi-check-circle-fill" style="color: #4CAF50; font-size: 0.6rem;"></i> No sea común</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white rounded-0 border-end-0">
-                                <i class="bi bi-lock-fill" style="color: var(--primary);"></i>
-                            </span>
-                            <input type="password" name="password1" id="password1"
-                                class="form-control rounded-0 border-start-0 border-end-0" placeholder="********"
-                                required>
-                            <button type="button"
-                                class="input-group-text bg-white rounded-0 border-start-0 toggle-password"
-                                style="cursor: pointer;" data-target="password1">
-                                <i class="bi bi-eye" style="color: var(--primary);"></i>
+                        
+                        <!-- GRUPO CON OJITO CORREGIDO -->
+                        <div class="password-group">
+                            <div class="input-with-icon">
+                                <i class="bi bi-lock-fill input-icon"></i>
+                                <input type="password" name="password1" id="password1" class="form-control" placeholder="********" required>
+                            </div>
+                            <button type="button" class="toggle-password" onclick="togglePassword('password1', this)">
+                                <i class="bi bi-eye"></i>
                             </button>
                         </div>
+                        {% if form.password1.errors %}
+                        <div class="helptext" style="color: #b02a2a;">
+                            {{ form.password1.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
 
-                    <!-- Confirmar contraseña con toggle DENTRO del input -->
+                    <!-- Confirmar contraseña con toggle CORREGIDO -->
                     <div class="form-group">
                         <label class="form-label">Confirmar contraseña</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white rounded-0 border-end-0">
-                                <i class="bi bi-lock-fill" style="color: var(--primary);"></i>
-                            </span>
-                            <input type="password" name="password2" id="password2"
-                                class="form-control rounded-0 border-start-0 border-end-0" placeholder="********"
-                                required>
-                            <button type="button"
-                                class="input-group-text bg-white rounded-0 border-start-0 toggle-password"
-                                style="cursor: pointer;" data-target="password2">
-                                <i class="bi bi-eye" style="color: var(--primary);"></i>
+                        
+                        <!-- GRUPO CON OJITO CORREGIDO -->
+                        <div class="password-group">
+                            <div class="input-with-icon">
+                                <i class="bi bi-lock-fill input-icon"></i>
+                                <input type="password" name="password2" id="password2" class="form-control" placeholder="********" required>
+                            </div>
+                            <button type="button" class="toggle-password" onclick="togglePassword('password2', this)">
+                                <i class="bi bi-eye"></i>
                             </button>
                         </div>
+                        {% if form.password2.errors %}
+                        <div class="helptext" style="color: #b02a2a;">
+                            {{ form.password2.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Términos -->
@@ -498,10 +560,10 @@
                 </div>
 
                 <div class="social-buttons">
-                    <a href="#" class="btn-social btn-gmail" onclick="alert('Demo: Google Login')">
+                    <a href="#" class="btn-social btn-gmail" onclick="alert('Demo: Google Login - Funcionalidad en desarrollo'); return false;">
                         <i class="bi bi-google"></i> Gmail
                     </a>
-                    <a href="#" class="btn-social btn-facebook" onclick="alert('Demo: Facebook Login')">
+                    <a href="#" class="btn-social btn-facebook" onclick="alert('Demo: Facebook Login - Funcionalidad en desarrollo'); return false;">
                         <i class="bi bi-facebook"></i> Facebook
                     </a>
                 </div>
@@ -515,28 +577,39 @@
                     <a href="{% url 'terminos' %}">Términos y condiciones</a>
                 </div>
                 <div class="copyright">
-                    © 2026 EndlessOffers
+                    © 2026 EndlessOffers. Todos los derechos reservados.
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Script para mostrar/ocultar contraseña -->
+    <!-- Script para mostrar/ocultar contraseña (MEJORADO) -->
     <script>
-        document.querySelectorAll('.toggle-password').forEach(button => {
-            button.addEventListener('click', function () {
-                let targetId = this.getAttribute('data-target');
-                let input = document.getElementById(targetId);
-                let icon = this.querySelector('i');
+        function togglePassword(inputId, button) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+            
+            // Mantener el foco en el input
+            passwordInput.focus();
+        }
 
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('bi-eye');
-                    icon.classList.add('bi-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('bi-eye-slash');
-                    icon.classList.add('bi-eye');
+        // Soporte para teclado (Enter y Espacio)
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const inputId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    togglePassword(inputId, this);
                 }
             });
         });
