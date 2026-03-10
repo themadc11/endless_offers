@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
@@ -22,7 +23,7 @@
             background: #f5f5f5;
             padding: 20px;
         }
-        
+
         .home-button {
             position: fixed;
             top: 20px;
@@ -36,19 +37,19 @@
             justify-content: center;
             color: #8C2B32;
             font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             z-index: 1000;
             text-decoration: none;
             border: 1px solid rgba(140, 43, 50, 0.1);
         }
-        
+
         .home-button:hover {
             background: #8C2B32;
             color: white;
             transform: translateY(-2px);
         }
-        
+
         .container-custom {
             width: 100%;
             max-width: 1100px;
@@ -56,13 +57,13 @@
             display: flex;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
-        
+
         .image-section {
             flex: 1.2;
             background: linear-gradient(135deg, rgba(93, 92, 49, 0.9) 0%, rgba(140, 43, 50, 0.9) 100%),
-                        url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+                url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -71,46 +72,46 @@
             padding: 40px;
             color: white;
         }
-        
+
         .image-content {
             text-align: center;
             width: 100%;
         }
-        
+
         .image-content h1 {
             font-size: 3rem;
             font-weight: 800;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .image-content p {
             font-size: 1.1rem;
             opacity: 0.95;
             margin-bottom: 40px;
         }
-        
+
         .feature-list {
             text-align: left;
         }
-        
+
         .feature-item {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 18px;
             font-size: 1rem;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             padding: 14px 20px;
             border-radius: 40px;
             backdrop-filter: blur(5px);
         }
-        
+
         .feature-item i {
             font-size: 1.3rem;
             color: #4CAF50;
         }
-        
+
         .form-section {
             flex: 0.8;
             background: #FFFFFF;
@@ -119,25 +120,24 @@
             justify-content: center;
             padding: 30px;
         }
-        
+
         .form-container {
             width: 100%;
             max-width: 320px;
         }
-        
+
         .form-header {
             margin-bottom: 20px;
             text-align: center;
         }
-        
+
         .form-header h2 {
             font-size: 2rem;
             font-weight: 700;
             color: #5D5C31;
             margin-bottom: 5px;
         }
-        
-        /* 👇 NUEVO ESTILO PARA MENSAJES */
+
         .alert {
             padding: 12px 16px;
             border-radius: 8px;
@@ -147,28 +147,23 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .alert-error {
             background: #fee9e9;
             border: 1px solid #fbc4c4;
             color: #b02a2a;
         }
-        
+
         .alert-success {
             background: #e6f4ea;
             border: 1px solid #b8e0c2;
             color: #1e7e34;
         }
-        
-        .alert i {
-            font-size: 1.1rem;
-        }
-        /* 👆 FIN NUEVOS ESTILOS */
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-label {
             display: block;
             margin-bottom: 5px;
@@ -176,11 +171,13 @@
             font-size: 0.85rem;
             font-weight: 600;
         }
-        
+
         .input-group {
             position: relative;
+            display: flex;
+            align-items: center;
         }
-        
+
         .input-group i {
             position: absolute;
             left: 12px;
@@ -188,22 +185,40 @@
             transform: translateY(-50%);
             color: #8C2B32;
             font-size: 1rem;
+            z-index: 1;
         }
-        
+
         .form-control {
             width: 100%;
             padding: 12px 12px 12px 40px;
             border: 1.5px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 10px 0 0 10px;
             font-size: 0.9rem;
+            border-right: none;
         }
-        
+
         .form-control:focus {
             outline: none;
             border-color: #8C2B32;
             box-shadow: 0 0 0 3px rgba(140, 43, 50, 0.1);
         }
-        
+
+        /* 👇 ESTILO PARA EL BOTÓN DEL OJO */
+        .toggle-password {
+            background: white;
+            border: 1.5px solid #e0e0e0;
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            padding: 12px 15px;
+            cursor: pointer;
+            color: #8C2B32;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            background: #f8f8f8;
+        }
+
         .form-options {
             display: flex;
             justify-content: space-between;
@@ -211,7 +226,7 @@
             margin: 15px 0 20px;
             font-size: 0.85rem;
         }
-        
+
         .remember-me {
             display: flex;
             align-items: center;
@@ -219,19 +234,19 @@
             color: #555;
             cursor: pointer;
         }
-        
+
         .remember-me input[type="checkbox"] {
             width: 15px;
             height: 15px;
             accent-color: #8C2B32;
         }
-        
+
         .forgot-link {
             color: #8C2B32;
             text-decoration: none;
             font-weight: 500;
         }
-        
+
         .btn-login {
             width: 100%;
             padding: 14px;
@@ -245,11 +260,11 @@
             transition: all 0.3s ease;
             margin-bottom: 15px;
         }
-        
+
         .btn-login:hover {
             background: #5D5C31;
         }
-        
+
         .separator {
             display: flex;
             align-items: center;
@@ -258,24 +273,24 @@
             color: #999;
             font-size: 0.8rem;
         }
-        
+
         .separator::before,
         .separator::after {
             content: '';
             flex: 1;
             border-bottom: 1px solid #e0e0e0;
         }
-        
+
         .separator span {
             padding: 0 10px;
         }
-        
+
         .social-buttons {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
-        
+
         .btn-social {
             flex: 1;
             padding: 12px;
@@ -293,51 +308,51 @@
             gap: 8px;
             text-decoration: none;
         }
-        
+
         .btn-social:hover {
             background: #f8f8f8;
             border-color: #8C2B32;
         }
-        
+
         .btn-gmail {
             color: #DB4437;
         }
-        
+
         .btn-gmail i {
             color: #DB4437;
         }
-        
+
         .btn-facebook {
             color: #1877f2;
         }
-        
+
         .btn-facebook i {
             color: #1877f2;
         }
-        
+
         .signup-prompt {
             text-align: center;
             margin: 15px 0 10px;
             font-size: 0.9rem;
         }
-        
+
         .signup-prompt a {
             color: #8C2B32;
             text-decoration: none;
             font-weight: 600;
         }
-        
+
         .terms-copyright {
             text-align: center;
             margin-top: 10px;
         }
-        
+
         .terms-link a {
             color: #5D5C31;
             text-decoration: none;
             font-size: 0.8rem;
         }
-        
+
         .copyright {
             color: #999;
             font-size: 0.65rem;
@@ -345,17 +360,18 @@
         }
     </style>
 </head>
+
 <body>
     <a href="/" class="home-button">
         <i class="bi bi-house-door-fill"></i>
     </a>
-    
+
     <div class="container-custom">
         <div class="image-section">
             <div class="image-content">
                 <h1>EndlessOffers</h1>
                 <p>Tu tienda online de promociones ilimitadas</p>
-                
+
                 <div class="feature-list">
                     <div class="feature-item">
                         <i class="bi bi-check-circle-fill"></i>
@@ -372,24 +388,23 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="form-section">
             <div class="form-container">
                 <div class="form-header">
                     <h2>INICIAR SESIÓN</h2>
                 </div>
-                
-                <!-- 👇 MENSAJE DE ERROR MANUAL (si existe) -->
+
                 {% if error %}
-                    <div class="alert alert-error">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        {{ error }}
-                    </div>
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    {{ error }}
+                </div>
                 {% endif %}
-                
+
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="form-group">
                         <label class="form-label">Email o usuario</label>
                         <div class="input-group">
@@ -397,42 +412,46 @@
                             <input type="text" name="username" class="form-control" placeholder="tu@email.com" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">Contraseña</label>
                         <div class="input-group">
                             <i class="bi bi-lock-fill"></i>
-                            <input type="password" name="password" class="form-control" placeholder="********" required>
+                            <input type="password" name="password" id="password" class="form-control" placeholder="********" required>
+                            <span class="toggle-password" onclick="togglePassword()">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </span>
                         </div>
                     </div>
-                    
+
                     <div class="form-options">
                         <label class="remember-me">
                             <input type="checkbox" name="remember"> Recordar
                         </label>
                         <a href="{% url 'password_reset' %}" class="forgot-link">¿Olvidaste?</a>
                     </div>
-                    
+
                     <button type="submit" class="btn-login">Ingresar</button>
                 </form>
-                
+
                 <div class="separator">
                     <span>O continúa con</span>
                 </div>
-                
+
+                <!-- BOTONES SOCIALES (DEMO) -->
                 <div class="social-buttons">
-                    <a href="#" class="btn-social btn-gmail" onclick="alert('Demo: Google Login')">
+                    <a href="#" class="btn-social btn-gmail" onclick="alert('Demo: Google Login - Funcionalidad en desarrollo')">
                         <i class="bi bi-google"></i> Gmail
                     </a>
-                    <a href="#" class="btn-social btn-facebook" onclick="alert('Demo: Facebook Login')">
+                    <a href="#" class="btn-social btn-facebook" onclick="alert('Demo: Facebook Login - Funcionalidad en desarrollo')">
                         <i class="bi bi-facebook"></i> Facebook
                     </a>
                 </div>
-                
+
                 <div class="signup-prompt">
                     <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Crear cuenta</a></p>
                 </div>
-                
+
                 <div class="terms-copyright">
                     <div class="terms-link">
                         <a href="{% url 'terminos' %}">Términos y condiciones</a>
@@ -444,5 +463,23 @@
             </div>
         </div>
     </div>
+
+    <!-- SCRIPT PARA EL OJITO DE CONTRASEÑA -->
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+    </script>
 </body>
 </html>
