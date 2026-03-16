@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from .models import Oferta, Categoria, Favorito, Comentario, Calificacion
 from .forms import OfertaForm, ComentarioForm, CalificacionForm
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 from django.contrib.auth.models import User
 
 
@@ -294,8 +294,8 @@ def dashboard_proveedor(request):
 def home(request):
     """Página de inicio con ofertas reales de la base de datos"""
     
-    # Ofertas activas ordenadas por fecha - AHORA TRAEMOS 12 OFERTAS
-    ofertas = Oferta.objects.filter(estado='activa').order_by('-fecha_creacion')[:12]  # 👈 Cambiado de 8 a 12
+    # Ofertas activas ordenadas por fecha
+    ofertas = Oferta.objects.filter(estado='activa').order_by('-fecha_creacion')[:12]
     
     # Ofertas destacadas (para el carrusel)
     ofertas_destacadas = Oferta.objects.filter(estado='activa').order_by('-fecha_creacion')[:3]
@@ -305,10 +305,20 @@ def home(request):
         total_ofertas=Count('oferta')
     ).filter(total_ofertas__gt=0)[:4]
     
-    # Categorías populares (las 5 con más ofertas)
+    # Categorías populares (las 6 con más ofertas)
     categorias_populares = Categoria.objects.annotate(
         total_ofertas=Count('oferta')
-    ).filter(total_ofertas__gt=0).order_by('-total_ofertas')[:5]
+    ).filter(total_ofertas__gt=0).order_by('-total_ofertas')[:6]
+    
+    # ===== PROVEEDORES DESTACADOS POR MÁS VISITADOS =====
+    from django.db.models import Sum  # Importar aquí o al inicio del archivo
+    
+    proveedores_destacados = User.objects.filter(
+        perfil__rol='proveedor',
+        perfil__oferta__estado='activa'  # 👈 CORREGIDO
+    ).annotate(
+        total_visitas=Sum('perfil__visitas')
+    ).distinct().order_by('-total_visitas')[:6]
     
     # Estadísticas
     total_ofertas = Oferta.objects.filter(estado='activa').count()
@@ -319,6 +329,7 @@ def home(request):
         'ofertas_destacadas': ofertas_destacadas,
         'categorias': categorias,
         'categorias_populares': categorias_populares,
+        'proveedores_destacados': proveedores_destacados,
         'total_ofertas': total_ofertas,
         'total_proveedores': total_proveedores,
     }
@@ -338,9 +349,8 @@ def lista_proveedores(request):
             Q(perfil__sitio_web__icontains=buscar)
         )
     
-    # Anotar estadísticas - CORREGIDO: usar perfil para acceder a ofertas
+    # Anotar estadísticas
     for proveedor in proveedores:
-        # 👇 CORRECCIÓN: proveedor.perfil.ofertas en lugar de proveedor.ofertas
         proveedor.ofertas_activas = Oferta.objects.filter(
             proveedor=proveedor.perfil, 
             estado='activa'
@@ -369,7 +379,7 @@ def perfil_proveedor(request, username):
     """Perfil público de un proveedor"""
     from django.db.models import Avg, Count
     from django.contrib.auth.models import User
-    from ofertas.models import Oferta, Calificacion, Comentario  # 👈 Asegúrate de importar Comentario
+    from ofertas.models import Oferta, Calificacion, Comentario
     
     proveedor = get_object_or_404(User, username=username)
     
@@ -377,6 +387,12 @@ def perfil_proveedor(request, username):
     if proveedor.perfil.rol != 'proveedor':
         messages.warning(request, 'Este usuario no es un proveedor.')
         return redirect('lista_proveedores')
+    
+    # ===== INCREMENTAR VISITAS =====
+    # No contar si es el mismo proveedor viendo su perfil
+    if request.user != proveedor:
+        proveedor.perfil.visitas += 1
+        proveedor.perfil.save()
     
     # Obtener ofertas activas del proveedor
     ofertas = Oferta.objects.filter(
@@ -392,10 +408,9 @@ def perfil_proveedor(request, username):
         total=Count('id')
     )
     
-    # 👇 CORREGIDO: Cambiar 'fecha' por 'fecha_creacion'
     ultimos_comentarios = Comentario.objects.filter(
         oferta__proveedor=proveedor.perfil
-    ).order_by('-fecha_creacion')[:5]  # 👈 Cambiado de '-fecha' a '-fecha_creacion'
+    ).order_by('-fecha_creacion')[:5]
     
     context = {
         'proveedor': proveedor,

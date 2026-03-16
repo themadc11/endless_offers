@@ -42,6 +42,9 @@ class Perfil(models.Model):
     
     # Mantenemos 'verificado' por compatibilidad (opcional)
     verificado = models.BooleanField(default=False)
+    
+    # 👇 NUEVO: Campo para contar visitas al perfil
+    visitas = models.IntegerField(default=0, verbose_name="Número de visitas")
 
     def __str__(self):
         return f"{self.user.username} - {self.rol}"
