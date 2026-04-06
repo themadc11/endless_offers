@@ -208,7 +208,7 @@
             width: 18px;
         }
 
-        /* BADGE DE FAVORITOS */
+        /* BADGE DE NOTIFICACIONES */
         .badge.bg-danger {
             background: var(--primary) !important;
         }
@@ -345,17 +345,19 @@
                             <li><hr class="dropdown-divider"></li>
                             
                             <!-- 👇 CATEGORÍAS DINÁMICAS (SOLO CON OFERTAS) -->
-                            {% for categoria in categorias_menu %}
-                            <li>
-                                <a class="dropdown-item" href="{% url 'lista_ofertas' %}?categoria={{ categoria.id }}">
-                                    <i class="bi bi-tag"></i> {{ categoria.nombre }}
-                                </a>
-                            </li>
-                            {% empty %}
-                            <li>
-                                <span class="dropdown-item text-muted">No hay categorías</span>
-                            </li>
-                            {% endfor %}
+                            {% if categorias_menu %}
+                                {% for categoria in categorias_menu %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'lista_ofertas' %}?categoria={{ categoria.id }}">
+                                        <i class="bi bi-tag"></i> {{ categoria.nombre }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                                <li>
+                                    <span class="dropdown-item text-muted">No hay categorías disponibles</span>
+                                </li>
+                            {% endif %}
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -380,51 +382,74 @@
                         <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-bell fs-5"></i>
                             {% if notificaciones_count > 0 %}
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                style="font-size: 0.6rem;">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                                style="background-color: #722F37; font-size: 0.6rem;">
                                 {{ notificaciones_count }}
                             </span>
                             {% endif %}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
-                            <li class="px-3 py-2 bg-light">
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px;">
+                            <li class="px-3 py-2" style="background-color: #f8f9fa;">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0 fw-bold">Notificaciones</h6>
+                                    <h6 class="mb-0 fw-bold" style="color: #722F37;">
+                                        <i class="bi bi-bell-fill me-2"></i>Notificaciones
+                                    </h6>
                                     {% if notificaciones_count > 0 %}
-                                    <a href="{% url 'marcar_todas_leidas' %}" class="small text-decoration-none">Marcar
-                                        todas</a>
+                                    <a href="{% url 'marcar_todas_leidas' %}" class="small text-decoration-none" style="color: #722F37;">
+                                        Marcar todas
+                                    </a>
                                     {% endif %}
                                 </div>
                             </li>
-                            <li>
-                                <hr class="dropdown-divider my-0">
-                            </li>
-                            {% for notif in notificaciones %}
-                            <li>
-                                <a href="{% url 'marcar_notificacion_leido' notif.id %}" class="dropdown-item py-3">
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0 me-2">
-                                            <i class="bi bi-bell" style="color: var(--primary);"></i>
+                            <li><hr class="dropdown-divider my-0"></li>
+                            
+                            {% if notificaciones %}
+                                {% for notif in notificaciones %}
+                                <li>
+                                    <a href="{% url 'marcar_notificacion_leido' notif.id %}" class="dropdown-item py-3 {% if not notif.leido %}bg-light{% endif %}">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0 me-3">
+                                                {% if notif.tipo == 'aprobacion_proveedor' %}
+                                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                                {% elif notif.tipo == 'rechazo_proveedor' %}
+                                                    <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                                                {% elif notif.tipo == 'nueva_oferta' %}
+                                                    <i class="bi bi-tag-fill text-info fs-5"></i>
+                                                {% elif notif.tipo == 'aprobacion_oferta' %}
+                                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                                {% elif notif.tipo == 'rechazo_oferta' %}
+                                                    <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                                                {% elif notif.tipo == 'nuevo_comentario' %}
+                                                    <i class="bi bi-chat-fill text-primary fs-5"></i>
+                                                {% elif notif.tipo == 'nueva_calificacion' %}
+                                                    <i class="bi bi-star-fill text-warning fs-5"></i>
+                                                {% elif notif.tipo == 'nuevo_favorito' %}
+                                                    <i class="bi bi-heart-fill text-danger fs-5"></i>
+                                                {% else %}
+                                                    <i class="bi bi-bell-fill" style="color: #722F37; font-size: 1.2rem;"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <p class="small text-dark mb-0 fw-semibold">{{ notif.titulo }}</p>
+                                                <p class="small text-muted mb-0">{{ notif.mensaje|truncatechars:45 }}</p>
+                                                <small class="text-muted">{{ notif.fecha_creacion|timesince }} atrás</small>
+                                            </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <p class="small text-muted mb-0">{{ notif.mensaje|truncatechars:50 }}</p>
-                                            <small class="text-muted">{{ notif.fecha_creacion|timesince }}</small>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            {% empty %}
-                            <li class="px-3 py-4 text-center text-muted">
-                                <i class="bi bi-bell-slash d-block mb-2" style="font-size: 2rem;"></i>
-                                <small>No hay notificaciones</small>
-                            </li>
-                            {% endfor %}
+                                    </a>
+                                </li>
+                                {% if not forloop.last %}<li><hr class="dropdown-divider my-0"></li>{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <li class="px-3 py-4 text-center text-muted">
+                                    <i class="bi bi-bell-slash d-block mb-2" style="font-size: 2rem;"></i>
+                                    <small>No tienes notificaciones</small>
+                                </li>
+                            {% endif %}
+                            
+                            <li><hr class="dropdown-divider my-0"></li>
                             <li>
-                                <hr class="dropdown-divider my-0">
-                            </li>
-                            <li>
-                                <a href="{% url 'lista_notificaciones' %}" class="dropdown-item text-center py-2">
-                                    Ver todas las notificaciones
+                                <a href="{% url 'lista_notificaciones' %}" class="dropdown-item text-center py-2" style="color: #722F37;">
+                                    <i class="bi bi-eye me-1"></i> Ver todas las notificaciones
                                 </a>
                             </li>
                         </ul>
@@ -434,70 +459,51 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
                             {% if user.is_authenticated %}
-                            <i class="bi bi-person-circle me-1"></i> {{ user.username }}
+                            <i class="bi bi-person-circle me-1"></i> {{ user.username|truncatechars:12 }}
                             {% else %}
                             <i class="bi bi-person-circle fs-4"></i>
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
                             {% if user.is_authenticated %}
-                            <li><a class="dropdown-item" href="{% url 'perfil' %}"><i class="bi bi-person"></i> Mi
-                                    perfil</a></li>
-                            <li><a class="dropdown-item" href="{% url 'editar_perfil' %}"><i
-                                        class="bi bi-pencil-square"></i> Editar perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'perfil' %}"><i class="bi bi-person"></i> Mi perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'editar_perfil' %}"><i class="bi bi-pencil-square"></i> Editar perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a href="{% url 'mis_favoritos' %}"
-                                    class="dropdown-item d-flex justify-content-between align-items-center">
+                                <a href="{% url 'mis_favoritos' %}" class="dropdown-item d-flex justify-content-between align-items-center">
                                     <span><i class="bi bi-heart"></i> Mis favoritos</span>
                                 </a>
                             </li>
 
                             <!-- ENLACE PARA ADMIN (solo visible para staff) -->
                             {% if user.is_staff %}
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'admin_dashboard' %}"
-                                    style="color: var(--primary);">
+                                <a class="dropdown-item" href="{% url 'admin_dashboard' %}" style="color: var(--primary);">
                                     <i class="bi bi-shield-lock me-2"></i> Panel Administrativo
                                 </a>
                             </li>
                             {% endif %}
 
                             {% if user.perfil.rol == "proveedor" %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'mis_ofertas' %}"><i class="bi bi-box-seam"></i>
-                                    Mis ofertas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'dashboard_proveedor' %}"><i
-                                        class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{% url 'crear_oferta' %}"><i
-                                        class="bi bi-plus-circle"></i> Crear oferta</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'mis_ofertas' %}"><i class="bi bi-box-seam"></i> Mis ofertas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'dashboard_proveedor' %}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{% url 'crear_oferta' %}"><i class="bi bi-plus-circle"></i> Crear oferta</a></li>
                             {% else %}
-                            <li><a class="dropdown-item" href="{% url 'solicitar_proveedor' %}"><i
-                                        class="bi bi-briefcase"></i> Solicitar ser proveedor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'solicitar_proveedor' %}"><i class="bi bi-briefcase"></i> Solicitar ser proveedor</a></li>
                             {% endif %}
 
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="post" action="{% url 'logout' %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i>
-                                        Cerrar sesión</button>
+                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
                                 </form>
                             </li>
                             {% else %}
-                            <li><a class="dropdown-item" href="{% url 'login' %}"><i
-                                        class="bi bi-box-arrow-in-right"></i> Iniciar sesión</a></li>
-                            <li><a class="dropdown-item" href="{% url 'registro' %}"><i class="bi bi-person-plus"></i>
-                                    Crear cuenta</a></li>
+                            <li><a class="dropdown-item" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Iniciar sesión</a></li>
+                            <li><a class="dropdown-item" href="{% url 'registro' %}"><i class="bi bi-person-plus"></i> Crear cuenta</a></li>
                             {% endif %}
                         </ul>
                     </li>
@@ -508,10 +514,11 @@
 
     <!-- Mensajes -->
     {% if messages %}
-    <div class="container">
+    <div class="container mt-3">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            <i class="bi bi-info-circle me-2"></i> {{ message }}
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle-fill{% elif message.tags == 'error' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %} me-2"></i>
+            {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}
@@ -531,8 +538,7 @@
                 <!-- Columna 1: Descripción -->
                 <div class="col-md-6 col-lg-5">
                     <h5 class="fw-bold text-white mb-3">ENDLESSOFFERS</h5>
-                    <p class="small text-white-50"
-                        style="color: rgba(255,255,255,0.7) !important; line-height: 1.6; max-width: 400px;">
+                    <p class="small" style="color: rgba(255,255,255,0.7) !important; line-height: 1.6; max-width: 400px;">
                         Tu tienda online de promociones ilimitadas. Encuentra las mejores ofertas en productos y
                         servicios de proveedores verificados.
                     </p>

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'usuarios.apps.UsuariosConfig',
     'ofertas',
     'admin_panel',
-    'notificaciones',
+    'notificaciones.apps.NotificacionesConfig',
 ]
 
 MIDDLEWARE = [

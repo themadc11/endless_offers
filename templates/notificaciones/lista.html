@@ -1,53 +1,90 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Notificaciones - EndlessOffers{% endblock %}
+{% block title %}Mis Notificaciones - EndlessOffers{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-5">
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold" style="color: var(--primary);">
-                    <i class="bi bi-bell me-2"></i>Mis Notificaciones
-                </h2>
-                {% if notificaciones %}
-                <a href="{% url 'marcar_todas_leidas' %}" class="btn btn-outline-dark rounded-0">
-                    <i class="bi bi-check-all me-2"></i>Marcar todas como leídas
+                <h1 class="fw-bold" style="color: #722F37;">Mis Notificaciones</h1>
+                <a href="{% url 'marcar_todas_leidas' %}" class="btn btn-outline-secondary rounded-0">
+                    <i class="bi bi-check2-all me-2"></i>Marcar todas como leídas
                 </a>
-                {% endif %}
             </div>
             
-            <div class="card border-0 shadow-sm rounded-0">
-                <div class="card-body p-0">
-                    {% if notificaciones %}
-                        <div class="list-group list-group-flush">
-                            {% for notif in notificaciones %}
-                            <a href="{% url 'marcar_notificacion_leido' notif.id %}" class="list-group-item list-group-item-action p-4 {% if not notif.leido %}bg-light{% endif %}">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="fw-bold mb-1">
-                                            {% if not notif.leido %}
-                                            <span class="badge bg-primary rounded-0 me-2">Nuevo</span>
-                                            {% endif %}
-                                            {{ notif.titulo }}
-                                        </h6>
-                                        <p class="mb-1 text-muted">{{ notif.mensaje }}</p>
-                                        <small class="text-muted">{{ notif.fecha_creacion|timesince }}</small>
-                                    </div>
-                                    <i class="bi bi-chevron-right" style="color: var(--primary);"></i>
+            {% if notificaciones %}
+                <div class="list-group">
+                    {% for notif in notificaciones %}
+                    <div class="list-group-item list-group-item-action {% if not notif.leido %}bg-light{% endif %}" style="border-left: 4px solid #722F37;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    {% if notif.tipo == 'aprobacion_proveedor' %}
+                                        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                                    {% elif notif.tipo == 'rechazo_proveedor' %}
+                                        <i class="bi bi-x-circle-fill fs-3 text-danger"></i>
+                                    {% elif notif.tipo == 'nueva_oferta' %}
+                                        <i class="bi bi-tag-fill fs-3 text-info"></i>
+                                    {% elif notif.tipo == 'aprobacion_oferta' %}
+                                        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                                    {% elif notif.tipo == 'rechazo_oferta' %}
+                                        <i class="bi bi-x-circle-fill fs-3 text-danger"></i>
+                                    {% elif notif.tipo == 'nuevo_comentario' %}
+                                        <i class="bi bi-chat-fill fs-3 text-primary"></i>
+                                    {% elif notif.tipo == 'nueva_calificacion' %}
+                                        <i class="bi bi-star-fill fs-3 text-warning"></i>
+                                    {% elif notif.tipo == 'nuevo_favorito' %}
+                                        <i class="bi bi-heart-fill fs-3 text-danger"></i>
+                                    {% else %}
+                                        <i class="bi bi-bell-fill fs-3" style="color: #722F37;"></i>
+                                    {% endif %}
                                 </div>
-                            </a>
-                            {% endfor %}
+                                <div>
+                                    <h5 class="mb-1 fw-bold">{{ notif.titulo }}</h5>
+                                    <p class="mb-1 text-muted">{{ notif.mensaje }}</p>
+                                    <small class="text-muted">{{ notif.fecha_creacion|date:"d/m/Y H:i" }} ({{ notif.fecha_creacion|timesince }} atrás)</small>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="{% url 'marcar_notificacion_leido' notif.id %}" class="btn btn-sm btn-outline-secondary rounded-0">
+                                    <i class="bi bi-check"></i> Marcar leída
+                                </a>
+                            </div>
                         </div>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-bell-slash fs-1 text-muted d-block mb-3"></i>
-                            <h5 class="text-muted">No tienes notificaciones</h5>
-                        </div>
-                    {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
-            </div>
+                
+                <!-- Paginación -->
+                {% if page_obj.paginator.num_pages > 1 %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link" style="background-color: #722F37; border-color: #722F37;">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-bell-slash" style="font-size: 4rem; color: #ccc;"></i>
+                    <h5 class="mt-3 text-muted">No tienes notificaciones</h5>
+                    <p class="text-muted">Cuando tengas notificaciones, aparecerán aquí.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
